@@ -7,15 +7,12 @@ import {
   Search, 
   ExternalLink, 
   CheckCircle2, 
-  HelpCircle, 
   Flame, 
   BookOpen, 
   Plus, 
   Loader2, 
-  TrendingUp,
-  Award,
-  Layers,
-  ChevronDown,
+  Layers, 
+  ChevronDown, 
   ChevronUp
 } from "lucide-react";
 import Tag from "@/components/shared/Tag";

@@ -8,14 +8,9 @@ import {
   Briefcase, 
   Trophy, 
   Sparkles, 
-  AlertTriangle, 
-  ChevronRight, 
   Clock, 
   ShieldAlert, 
   Search,
-  Filter,
-  CheckCircle,
-  Eye,
   ArrowRight
 } from "lucide-react";
 import Link from "next/link";

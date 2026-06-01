@@ -12,9 +12,7 @@ import {
   ChevronRight, 
   TrendingUp, 
   ArrowRight,
-  ShieldCheck,
   Star,
-  Users,
   Compass,
   Loader2
 } from "lucide-react";

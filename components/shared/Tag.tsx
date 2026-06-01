@@ -36,9 +36,19 @@ export default function Tag({
     ? "cursor-pointer hover:-translate-y-0.5 hover:shadow-sm hover:border-primary-300 dark:hover:border-primary-700"
     : "pointer-events-none";
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (clickable && onClick && (e.key === "Enter" || e.key === " ")) {
+      e.preventDefault();
+      onClick();
+    }
+  };
+
   return (
     <span
       onClick={onClick}
+      onKeyDown={handleKeyDown}
+      role={clickable ? "button" : undefined}
+      tabIndex={clickable ? 0 : undefined}
       className={`${baseStyles} ${sizeStyles[size]} ${variantStyles[variant]} ${clickableStyles}`}
     >
       {label}

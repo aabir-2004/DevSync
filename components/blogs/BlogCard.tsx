@@ -31,7 +31,7 @@ interface BlogCardProps {
 export default function BlogCard({ post }: BlogCardProps) {
   // Calculate reading time estimate
   const getReadingTime = (html: string) => {
-    const text = html.replace(/<[^>]*>/g, ""); // strip html
+    const text = html.replace(/<[^>]+>/g, ""); // strip html
     const words = text.trim().split(/\s+/).length;
     const time = Math.ceil(words / 200); // 200 wpm average
     return `${time} min read`;
