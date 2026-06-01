@@ -85,7 +85,12 @@ export default function SignupForm() {
       }
 
       // Check if user is created successfully
-      if (data?.user) {
+      if (data?.session) {
+        // Auto-confirmed: session is active, redirect straight to homepage dashboard!
+        router.push("/");
+        router.refresh();
+      } else if (data?.user) {
+        // Email verification required
         router.push("/auth/verify?email=" + encodeURIComponent(formData.email));
       }
     } catch (err: unknown) {
