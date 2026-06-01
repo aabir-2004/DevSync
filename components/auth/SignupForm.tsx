@@ -129,7 +129,7 @@ export default function SignupForm() {
             onChange={handleChange}
             placeholder="John Doe"
             disabled={isLoading}
-            className="w-full rounded-2xl border border-zinc-200 bg-zinc-50/50 py-2.5 pl-10 pr-4 text-xs text-zinc-900 focus:border-primary focus:bg-white focus:outline-none dark:border-zinc-800 dark:bg-zinc-900 dark:text-white transition-all"
+            className="w-full rounded-2xl border border-zinc-200 bg-zinc-50/50 py-2.5 pl-10 pr-4 text-xs text-zinc-900 placeholder-zinc-400 focus:border-primary focus:bg-white focus:outline-none dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100 dark:placeholder-zinc-500 transition-all"
           />
         </div>
         {formErrors.name && (
@@ -153,7 +153,7 @@ export default function SignupForm() {
             onChange={handleChange}
             placeholder="name@decsync.com"
             disabled={isLoading}
-            className="w-full rounded-2xl border border-zinc-200 bg-zinc-50/50 py-2.5 pl-10 pr-4 text-xs text-zinc-900 focus:border-primary focus:bg-white focus:outline-none dark:border-zinc-800 dark:bg-zinc-900 dark:text-white transition-all"
+            className="w-full rounded-2xl border border-zinc-200 bg-zinc-50/50 py-2.5 pl-10 pr-4 text-xs text-zinc-900 placeholder-zinc-400 focus:border-primary focus:bg-white focus:outline-none dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100 dark:placeholder-zinc-500 transition-all"
           />
         </div>
         {formErrors.email && (
@@ -175,11 +175,11 @@ export default function SignupForm() {
             value={formData.batch}
             onChange={handleChange}
             disabled={isLoading}
-            className="w-full rounded-2xl border border-zinc-200 bg-zinc-50/50 py-2.5 pl-10 pr-4 text-xs text-zinc-900 focus:border-primary focus:bg-white focus:outline-none dark:border-zinc-800 dark:bg-zinc-900 dark:text-white transition-all appearance-none cursor-pointer"
+            className="w-full rounded-2xl border border-zinc-200 bg-zinc-50/50 py-2.5 pl-10 pr-4 text-xs text-zinc-900 focus:border-primary focus:bg-white focus:outline-none dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100 transition-all appearance-none cursor-pointer"
           >
-            <option value="" disabled>Select your batch</option>
+            <option value="" disabled className="dark:bg-zinc-900 dark:text-zinc-400">Select your batch</option>
             {batchOptions.map((opt) => (
-              <option key={opt} value={opt} className="dark:bg-zinc-950">
+              <option key={opt} value={opt} className="dark:bg-zinc-900 dark:text-zinc-100">
                 {opt}
               </option>
             ))}
@@ -206,7 +206,7 @@ export default function SignupForm() {
             onChange={handleChange}
             placeholder="••••••••"
             disabled={isLoading}
-            className="w-full rounded-2xl border border-zinc-200 bg-zinc-50/50 py-2.5 pl-10 pr-10 text-xs text-zinc-900 focus:border-primary focus:bg-white focus:outline-none dark:border-zinc-800 dark:bg-zinc-900 dark:text-white transition-all"
+            className="w-full rounded-2xl border border-zinc-200 bg-zinc-50/50 py-2.5 pl-10 pr-10 text-xs text-zinc-900 placeholder-zinc-400 focus:border-primary focus:bg-white focus:outline-none dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100 dark:placeholder-zinc-500 transition-all"
           />
           <button
             type="button"

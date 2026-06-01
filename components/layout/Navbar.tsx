@@ -179,7 +179,7 @@ export default function Navbar() {
               readOnly
               onClick={() => router.push("/search")}
               placeholder="Search... (⌘K)"
-              className="w-48 lg:w-64 rounded-full border border-zinc-200 bg-zinc-50 py-1.5 pl-9 pr-4 text-xs text-zinc-900 placeholder-zinc-400 focus:border-primary focus:bg-white focus:outline-none focus:ring-1 focus:ring-primary dark:border-zinc-800 dark:bg-zinc-900 dark:text-white dark:focus:bg-zinc-950 transition-all cursor-pointer"
+              className="w-48 lg:w-64 rounded-full border border-zinc-200 bg-zinc-50 py-1.5 pl-9 pr-4 text-xs text-zinc-900 placeholder-zinc-400 focus:border-primary focus:bg-white focus:outline-none focus:ring-1 focus:ring-primary dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100 dark:placeholder-zinc-500 dark:focus:bg-zinc-950 transition-all cursor-pointer"
             />
           </div>
 
