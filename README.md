@@ -14,31 +14,16 @@
 
 ---
 
-## 🌟 Overview
+## Overview
 **DevSync** is a highly interactive community platform engineered to facilitate peer-to-peer cohort engagement, structured notes sharing, technical blogging, forum discussion boards, and progressive DSA sheet tracking. 
 
 The application is structured inside a highly premium **3-column App Shell** with custom dark mode filters, HSL orange-accent configurations (`#E8590C`), interactive micro-animations, and full database integrations designed to run at **zero operational costs** (utilizing the Supabase Free Tier database, client-side WebSocket streams, and Vercel Hobby hosting).
 
 ---
 
-## 🛠️ Feature Modules
+## Feature Modules
 
-```mermaid
-graph TD
-  User((Active Student)) --> AppShell[3-Column App Shell]
-  AppShell --> Resources[Structured Notes Sharing]
-  AppShell --> Blogs[TipTap Tech Blogging]
-  AppShell --> Forums[Nested Comment Forums]
-  AppShell --> DSA[DSA Progression Sheets]
-  AppShell --> Dashboard[Unified Home Dashboard]
-  
-  subgraph Data Flow
-    Resources -.-> DB[(Supabase PostgreSQL)]
-    Blogs -.-> DB
-    Forums -.-> DB
-    DSA -.-> DB
-  end
-```
+
 
 ### 1. Unified Workspace Dashboard
 * **Glassmorphic Hero Welcome Deck**: Personalized greetings utilizing dynamic session checks.
@@ -75,7 +60,7 @@ graph TD
 
 ---
 
-## 💻 Technology Stack
+## Technology Stack
 
 | Layer | Technology | Key Usage |
 | --- | --- | --- |
@@ -89,7 +74,7 @@ graph TD
 
 ---
 
-## 📂 Project Directory Structure
+##  Project Directory Structure
 
 ```text
 DEVSYNC/
@@ -124,7 +109,7 @@ DEVSYNC/
 
 ---
 
-## ⚡ Getting Started
+##  Getting Started
 
 ### Prerequisites
 * **Node.js** v18.18+ or v20+
@@ -166,7 +151,7 @@ npx tsc --noEmit
 
 ---
 
-## 🛡️ Database & Security RLS Policies
+##  Database & Security RLS Policies
 DevSync implements **Row-Level Security (RLS)** at the database tier ensuring strict tenancy controls:
 * **Profiles**: Users can edit only their own profile details. Banned users are rejected.
 * **Content Sharing**: Active students can write resources and blogs. Only the content owner or an administrator can delete them.
