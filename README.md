@@ -21,6 +21,9 @@ The application is structured inside a highly premium **3-column App Shell** wit
 
 ---
 
+<img width="1316" height="726" alt="Screenshot 2026-06-01 at 7 00 10 PM" src="https://github.com/user-attachments/assets/19ecc770-5b9c-49ab-91d0-565455a24334" />
+
+
 ## Feature Modules
 
 
