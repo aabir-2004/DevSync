@@ -43,7 +43,7 @@ export default function BlogCard({ post }: BlogCardProps) {
   };
 
   return (
-    <div className="premium-card rounded-3xl p-6 flex flex-col gap-4 relative overflow-hidden group">
+    <div className="pixel-card  p-6 flex flex-col gap-4 relative overflow-hidden group">
       
       {/* Excerpt image/illustration placeholder on top if any, else text */}
       <div className="flex-1 space-y-2">
@@ -82,7 +82,7 @@ export default function BlogCard({ post }: BlogCardProps) {
       )}
 
       {/* Divider */}
-      <div className="h-px bg-zinc-100 dark:bg-zinc-800/60 my-1" />
+      <div className="h-px bg-zinc-100 zinc-800/60 my-1" />
 
       {/* Bottom Row */}
       <div className="flex items-center justify-between">
@@ -109,7 +109,7 @@ export default function BlogCard({ post }: BlogCardProps) {
           
           <Link
             href={`/blogs/${post.slug}`}
-            className="flex h-8 w-8 items-center justify-center rounded-full bg-primary-50 hover:bg-primary-100 text-primary dark:bg-primary-950/20 dark:hover:bg-primary-950/40 transition-colors"
+            className="flex h-8 w-8 items-center justify-center rounded-full bg-primary-50 hover:bg-primary-100 text-primary primary-950/20 dark:hover:bg-primary-950/40 transition-colors"
           >
             <ArrowUpRight className="h-4 w-4" />
           </Link>

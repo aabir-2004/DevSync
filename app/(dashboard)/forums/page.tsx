@@ -7,7 +7,7 @@ import ThreadCard, { ForumThread } from "@/components/forums/ThreadCard";
 import SearchBar from "@/components/shared/SearchBar";
 import Skeleton from "@/components/shared/Skeleton";
 import Tag from "@/components/shared/Tag";
-import { Plus, MessageSquare, Flame, Filter, HelpCircle, Trophy } from "lucide-react";
+import { Plus, MessageSquare } from "lucide-react";
 
 export default function ForumsPage() {
   const supabase = createClient();
@@ -34,22 +34,18 @@ export default function ForumsPage() {
     const fetchThreads = async () => {
       setIsLoading(true);
       try {
-        // Fetch threads with author info
         let query = supabase
           .from("forum_threads")
           .select("*, users(name, avatar_url, batch)");
 
-        // Category Filter
         if (activeCategory !== "all") {
           query = query.eq("category", activeCategory);
         }
 
-        // Search Filter
         if (searchQuery.trim()) {
           query = query.or(`title.ilike.%${searchQuery}%,body.ilike.%${searchQuery}%`);
         }
 
-        // Sorting (Pinning overrides standard sorting, matching premium behavior!)
         query = query.order("is_pinned", { ascending: false });
         
         if (sortBy === "upvotes") {
@@ -61,7 +57,6 @@ export default function ForumsPage() {
         const { data: threadData, error: threadError } = await query;
         if (threadError) throw threadError;
 
-        // Fetch comments count for each thread to display count badge
         const threadsWithCounts = await Promise.all(
           (threadData || []).map(async (t: any) => {
             const { count, error: countError } = await supabase
@@ -91,12 +86,12 @@ export default function ForumsPage() {
     <div className="space-y-6">
       {/* Header Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="flex items-center gap-2">
-          <div className="h-9 w-9 rounded-2xl bg-primary-50 dark:bg-primary-950/20 text-primary flex items-center justify-center">
+        <div className="flex items-center gap-2.5">
+          <div className="h-9 w-9 bg-primary-50 text-primary flex items-center justify-center border-2 border-primary-100">
             <MessageSquare className="h-5 w-5" />
           </div>
           <div>
-            <h2 className="text-lg font-black text-zinc-900 dark:text-white">
+            <h2 className="text-lg font-black text-zinc-900">
               Discussion Forums
             </h2>
             <p className="text-[11px] text-zinc-400 font-medium">
@@ -105,19 +100,17 @@ export default function ForumsPage() {
           </div>
         </div>
 
-        {/* Start Thread Button */}
         <Link
           href="/forums/new"
-          className="inline-flex items-center justify-center gap-1.5 rounded-full bg-primary hover:bg-primary-900 px-4 py-2 text-xs font-bold text-white shadow-md hover:shadow-lg transition-all cursor-pointer"
+          className="pixel-btn pixel-btn-primary text-[8px]"
         >
-          <Plus className="h-4 w-4" />
+          <Plus className="h-3.5 w-3.5" />
           <span>New Discussion</span>
         </Link>
       </div>
 
       {/* Categories & Search Panel */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
-        {/* Search */}
         <div className="lg:col-span-4">
           <SearchBar 
             onSearch={(val) => setSearchQuery(val)} 
@@ -125,24 +118,23 @@ export default function ForumsPage() {
           />
         </div>
 
-        {/* Sorting & Filter buttons */}
         <div className="lg:col-span-8 flex flex-wrap gap-2 justify-start lg:justify-end text-xs font-semibold">
           <button
             onClick={() => setSortBy("created_at")}
-            className={`px-3 py-1.5 rounded-xl border transition-all cursor-pointer ${
+            className={`px-3 py-1.5 border-2 transition-all cursor-pointer ${
               sortBy === "created_at"
                 ? "bg-primary text-white border-primary"
-                : "border-zinc-200 text-zinc-600 hover:bg-zinc-50 dark:border-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-850"
+                : "border-zinc-200 text-zinc-600 hover:bg-zinc-50"
             }`}
           >
             Newest
           </button>
           <button
             onClick={() => setSortBy("upvotes")}
-            className={`px-3 py-1.5 rounded-xl border transition-all cursor-pointer ${
+            className={`px-3 py-1.5 border-2 transition-all cursor-pointer ${
               sortBy === "upvotes"
                 ? "bg-primary text-white border-primary"
-                : "border-zinc-200 text-zinc-600 hover:bg-zinc-50 dark:border-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-850"
+                : "border-zinc-200 text-zinc-600 hover:bg-zinc-50"
             }`}
           >
             Trending 🔥
@@ -150,8 +142,8 @@ export default function ForumsPage() {
         </div>
       </div>
 
-      {/* Horizontal Category filter pills */}
-      <div className="flex flex-wrap gap-1.5 pb-2 border-b border-zinc-100/60 dark:border-zinc-800/40">
+      {/* Category filter pills */}
+      <div className="flex flex-wrap gap-1.5 pb-2 border-b-2 border-dashed border-zinc-200">
         {categories.map((cat) => (
           <button
             key={cat.value}
@@ -172,36 +164,25 @@ export default function ForumsPage() {
       {isLoading ? (
         <div className="grid grid-cols-1 gap-4">
           {[...Array(4)].map((_, idx) => (
-            <div key={idx} className="premium-card rounded-3xl p-5 space-y-4">
+            <div key={idx} className="pixel-card p-5 space-y-3">
+              <Skeleton className="h-5 w-20" />
+              <Skeleton className="h-4 w-3/4" />
+              <Skeleton className="h-10 w-full" />
+              <div className="pixel-divider my-2" />
               <div className="flex justify-between items-center">
-                <Skeleton className="h-5 w-20 rounded-full" />
-                <Skeleton className="h-4 w-12 rounded" />
-              </div>
-              <div className="space-y-2">
-                <Skeleton className="h-4 w-3/4 rounded" />
-                <Skeleton className="h-10 w-full rounded-lg" />
-              </div>
-              <div className="h-px bg-zinc-100 dark:bg-zinc-800/60 my-1" />
-              <div className="flex justify-between items-center">
-                <div className="flex gap-2 items-center">
-                  <Skeleton className="h-6 w-6 rounded-full" />
-                  <Skeleton className="h-3 w-16 rounded" />
-                </div>
-                <div className="flex gap-2">
-                  <Skeleton className="h-7 w-20 rounded-full" />
-                  <Skeleton className="h-7 w-12 rounded-full" />
-                </div>
+                <Skeleton className="h-6 w-20" />
+                <Skeleton className="h-6 w-12" />
               </div>
             </div>
           ))}
         </div>
       ) : threads.length === 0 ? (
-        <div className="premium-card rounded-3xl p-10 flex flex-col items-center justify-center text-center">
-          <p className="text-sm font-bold text-zinc-900 dark:text-white">
+        <div className="pixel-card p-10 flex flex-col items-center justify-center text-center">
+          <p className="text-sm font-bold text-zinc-900">
             No discussions found
           </p>
           <p className="text-xs text-zinc-500 mt-1.5 max-w-xs">
-            Try choosing a different topic or adjust search terms, or trigger the first cohort question!
+            Try choosing a different topic or adjust search terms, or start the first cohort question!
           </p>
         </div>
       ) : (

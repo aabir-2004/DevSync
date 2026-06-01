@@ -65,8 +65,8 @@ export default function Avatar({
           sizeStyles[size]
         } ${
           src 
-            ? "bg-zinc-100 dark:bg-zinc-800" 
-            : "bg-primary-100 text-primary-950 dark:bg-primary-950/40 dark:text-primary-300"
+            ? "bg-zinc-100 zinc-800" 
+            : "bg-primary-100 text-primary-950 primary-950/40 dark:text-primary-300"
         }`}
       >
         {src ? (

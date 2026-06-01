@@ -69,7 +69,7 @@ export default function CommentForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-3">
       {error && (
-        <p className="text-[10px] font-semibold text-red-500 bg-red-50 p-2 rounded-lg dark:bg-red-950/20 dark:text-red-400 border border-red-100 dark:border-red-900/10">
+        <p className="text-[10px] font-semibold text-red-500 bg-red-50 p-2 rounded-lg dark:text-red-400 border border-red-100 dark:border-red-900/10">
           {error}
         </p>
       )}
@@ -82,7 +82,7 @@ export default function CommentForm({
           onChange={(e) => setContent(e.target.value)}
           placeholder={placeholder}
           disabled={isLoading}
-          className="w-full rounded-2xl border border-zinc-200 bg-zinc-50/50 p-3.5 text-xs text-zinc-900 focus:border-primary focus:bg-white focus:outline-none dark:border-zinc-800 dark:bg-zinc-900 dark:text-white transition-all resize-none"
+          className="w-full rounded-2xl border border-zinc-200 bg-zinc-50/50 p-3.5 text-xs text-zinc-900 focus:border-primary focus:bg-white focus:outline-none dark:border-zinc-800 dark:text-white transition-all resize-none"
         />
       </div>
 

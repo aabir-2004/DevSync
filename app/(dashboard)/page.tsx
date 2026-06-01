@@ -7,7 +7,6 @@ import {
   FileText, 
   MessageSquare, 
   Trophy, 
-  Sparkles, 
   Megaphone, 
   ChevronRight, 
   TrendingUp, 
@@ -17,8 +16,7 @@ import {
   Loader2
 } from "lucide-react";
 import Link from "next/link";
-import Tag from "@/components/shared/Tag";
-import Avatar from "@/components/shared/Avatar";
+import PixelCharacter from "@/components/shared/PixelCharacter";
 
 interface FeaturedItem {
   id: string;
@@ -135,36 +133,36 @@ export default function HomeDashboard() {
   // Visual Category Card Config
   const categories = [
     {
-      title: "Notes & Resources",
-      desc: "Find and share lecture notes, books & materials.",
+      title: "Resources",
+      desc: "Notes, PDFs, roadmaps, interview prep and more.",
       href: "/resources",
       icon: BookOpen,
-      color: "border-orange-500/25 bg-orange-50/5 dark:bg-orange-950/5 hover:border-orange-500 hover:shadow-orange-500/5",
-      iconColor: "text-orange-500 bg-orange-50 dark:bg-orange-950/20"
+      stat: "1.2K+ items",
+      statColor: "text-orange-600",
     },
     {
-      title: "Technical Blogs",
-      desc: "Read student write-ups & engineering deep-dives.",
+      title: "Blogs",
+      desc: "Write technical articles, share projects and experiences.",
       href: "/blogs",
       icon: FileText,
-      color: "border-blue-500/25 bg-blue-50/5 dark:bg-blue-950/5 hover:border-blue-500 hover:shadow-blue-500/5",
-      iconColor: "text-blue-500 bg-blue-50 dark:bg-blue-950/20"
+      stat: "512+ posts",
+      statColor: "text-orange-600",
     },
     {
-      title: "Discussions Board",
-      desc: "Ask questions, clear doubts & talk placement prep.",
+      title: "Discussions",
+      desc: "Ask questions, debate ideas, and help each other learn.",
       href: "/forums",
       icon: MessageSquare,
-      color: "border-purple-500/25 bg-purple-50/5 dark:bg-purple-950/5 hover:border-purple-500 hover:shadow-purple-500/5",
-      iconColor: "text-purple-500 bg-purple-50 dark:bg-purple-950/20"
+      stat: "1.8K+ threads",
+      statColor: "text-orange-600",
     },
     {
-      title: "DSA progression",
-      desc: "Curated batch sheets, tracking & challenges.",
+      title: "DSA",
+      desc: "Curated problem lists, roadmaps and solutions.",
       href: "/dsa",
       icon: Trophy,
-      color: "border-green-500/25 bg-green-50/5 dark:bg-green-950/5 hover:border-green-500 hover:shadow-green-500/5",
-      iconColor: "text-green-500 bg-green-50 dark:bg-green-950/20"
+      stat: "850+ problems",
+      statColor: "text-orange-600",
     }
   ];
 
@@ -173,82 +171,130 @@ export default function HomeDashboard() {
       
       {/* Dynamic Urgent Announcement Banner */}
       {announcement && (
-        <div className="rounded-2xl border border-red-200 bg-red-50/40 p-4 dark:border-red-900/30 dark:bg-red-950/10 flex items-start gap-3 animate-in fade-in slide-in-from-top-4 duration-300">
-          <div className="h-8 w-8 shrink-0 rounded-xl bg-red-500 text-white flex items-center justify-center animate-pulse">
-            <Megaphone className="h-4.5 w-4.5" />
+        <div className="pixel-card p-3.5 border-primary bg-primary-50/40 flex items-start gap-3">
+          <div className="h-8 w-8 shrink-0 bg-primary text-white flex items-center justify-center">
+            <Megaphone className="h-4 w-4" />
           </div>
           <div className="flex-1 text-xs">
             <div className="flex items-center justify-between flex-wrap gap-1 mb-1">
-              <span className="font-black text-red-500 uppercase tracking-widest text-[9px]">
-                Urgent Cohort Update
+              <span className="font-pixel text-[7px] text-primary uppercase tracking-widest">
+                Announcement
               </span>
               <Link 
                 href="/announcements" 
-                className="font-bold text-red-500 hover:underline flex items-center gap-0.5 text-[9px] uppercase"
+                className="font-bold text-primary hover:underline flex items-center gap-0.5 text-[9px]"
               >
-                <span>Read Board</span>
+                <span>View details</span>
                 <ChevronRight className="h-3 w-3" />
               </Link>
             </div>
-            <h4 className="font-extrabold text-zinc-900 dark:text-white leading-snug">
+            <h4 className="font-bold text-zinc-900 leading-snug">
               {announcement.title}
             </h4>
-            <p className="text-zinc-650 dark:text-zinc-400 mt-1 line-clamp-1">
+            <p className="text-zinc-500 mt-0.5 line-clamp-1">
               {announcement.body}
             </p>
           </div>
         </div>
       )}
 
-      {/* Hero Welcome banner */}
-      <div className="premium-card rounded-3xl p-6 md:p-8 relative overflow-hidden flex flex-col justify-center min-h-[160px] border border-zinc-150/80 dark:border-zinc-800/80 bg-linear-to-br from-white to-zinc-50/30 dark:from-zinc-950 dark:to-black">
-        {/* Glow vector shapes */}
-        <div className="absolute -top-10 -right-10 h-32 w-32 rounded-full bg-primary-100/40 blur-3xl dark:bg-primary-950/20" />
-        <div className="absolute -bottom-8 -left-10 h-28 w-28 rounded-full bg-orange-200/20 blur-3xl dark:bg-orange-950/10" />
+      {/* ═══ PIXEL ART HERO BANNER ═══ */}
+      <div className="pixel-card p-6 md:p-8 relative overflow-hidden">
+        <div className="flex flex-col md:flex-row items-center gap-6">
+          {/* Left Content */}
+          <div className="flex-1 space-y-4 z-10">
+            <h1 className="text-2xl md:text-3xl font-black text-zinc-900 tracking-tight leading-tight">
+              Learn. Share.{" "}
+              <span className="text-primary font-pixel text-lg md:text-xl">Grow Together.</span>
+            </h1>
+            
+            <p className="text-sm text-zinc-500 font-medium max-w-md leading-relaxed">
+              A collaborative learning space for the DevSync batch.
+              Share resources, write blogs, discuss ideas,
+              and grow together.
+            </p>
 
-        <div className="relative space-y-2.5 z-10">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary-50 dark:bg-primary-950/20 border border-primary-100/50 dark:border-primary-900/10 text-[10px] font-black text-primary uppercase tracking-widest">
-            <Sparkles className="h-3.5 w-3.5 fill-primary-400 animate-pulse" />
-            <span>DevSync batch portal</span>
+            <div className="flex items-center gap-3 pt-1">
+              <Link href="/resources" className="pixel-btn pixel-btn-primary text-[8px]">
+                Enter Community
+              </Link>
+              <Link href="/resources" className="pixel-btn pixel-btn-outline text-[8px]">
+                Browse Resources
+              </Link>
+            </div>
           </div>
-          
-          <h1 className="text-2xl md:text-3xl font-black text-zinc-950 dark:text-white tracking-tight leading-none">
-            Hello, <span className="text-primary">{userName}</span>!
-          </h1>
-          
-          <p className="text-xs md:text-sm text-zinc-450 dark:text-zinc-400 font-semibold max-w-md leading-relaxed">
-            Welcome to the collaborative cohort workspace. Learn. Share. <span className="text-zinc-700 dark:text-zinc-300 font-black font-mono">{`{`} Grow Together {`}`}</span>. Explore resources or check active problem sheets.
-          </p>
+
+          {/* Right: Pixel Art Scene */}
+          <div className="relative flex-shrink-0 w-64 h-40 md:w-72 md:h-44">
+            {/* Pixel terrain hills */}
+            <div className="absolute bottom-0 left-0 right-0">
+              {/* Hill 1 - left */}
+              <div className="absolute bottom-0 left-2 w-16 h-8 bg-zinc-300" />
+              <div className="absolute bottom-8 left-4 w-12 h-4 bg-zinc-300" />
+              <div className="absolute bottom-12 left-6 w-8 h-4 bg-zinc-400" />
+              
+              {/* Ground */}
+              <div className="absolute bottom-0 left-0 right-0 h-4 bg-zinc-200 border-t-2 border-zinc-300" />
+              
+              {/* Hill 2 - center-right (taller) */}
+              <div className="absolute bottom-4 right-8 w-20 h-12 bg-zinc-300" />
+              <div className="absolute bottom-16 right-10 w-16 h-6 bg-zinc-400" />
+              <div className="absolute bottom-22 right-12 w-12 h-4 bg-zinc-500" />
+              <div className="absolute bottom-26 right-14 w-8 h-4 bg-zinc-500" />
+              
+              {/* Pixel flag on top of right hill */}
+              <div className="absolute bottom-30 right-16 w-0.5 h-10 bg-zinc-700" />
+              <div className="absolute bottom-36 right-12 w-6 h-4 bg-primary" />
+              
+              {/* Small blocks / details */}
+              <div className="absolute bottom-4 left-24 w-4 h-4 bg-zinc-200 border border-zinc-300" />
+              <div className="absolute bottom-4 left-32 w-3 h-3 bg-zinc-200 border border-zinc-300" />
+            </div>
+
+            {/* Interactive Pixel Characters */}
+            <div className="absolute bottom-6 left-20">
+              <PixelCharacter size={40} />
+            </div>
+            <div className="absolute bottom-16 right-24">
+              <PixelCharacter size={32} />
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Category Shortcut Grid */}
+      {/* Category Shortcut Grid — "Explore by Category" */}
       <div className="space-y-3">
-        <h3 className="text-xs font-black uppercase text-zinc-400 tracking-wider flex items-center gap-1.5">
-          <Compass className="h-4 w-4 text-primary" />
-          <span>Explore Workspace</span>
-        </h3>
+        <div className="flex items-center justify-between">
+          <h3 className="font-pixel text-[8px] text-zinc-700 uppercase flex items-center gap-1.5">
+            <Compass className="h-4 w-4 text-primary" />
+            <span>Explore by Category</span>
+          </h3>
+          <Link href="/search" className="text-[10px] font-bold text-primary hover:underline flex items-center gap-0.5">
+            View all →
+          </Link>
+        </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {categories.map((cat, i) => {
             const Icon = cat.icon;
             return (
               <Link 
                 key={i} 
                 href={cat.href}
-                className={`premium-card rounded-2xl p-5 border flex items-start gap-4 transition-all duration-200 hover:-translate-y-0.5 cursor-pointer ${cat.color}`}
+                className="pixel-card p-4 flex flex-col items-center text-center gap-2 cursor-pointer"
               >
-                <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl ${cat.iconColor} shadow-inner`}>
-                  <Icon className="h-5.5 w-5.5" />
+                <div className="flex h-10 w-10 items-center justify-center bg-zinc-50 border-2 border-zinc-200">
+                  <Icon className="h-5 w-5 text-zinc-600" />
                 </div>
-                <div className="space-y-1 mt-0.5">
-                  <h4 className="text-xs font-black text-zinc-900 dark:text-white tracking-wide uppercase">
-                    {cat.title}
-                  </h4>
-                  <p className="text-[11px] text-zinc-400 font-medium leading-relaxed">
-                    {cat.desc}
-                  </p>
-                </div>
+                <h4 className="text-xs font-bold text-zinc-900">
+                  {cat.title}
+                </h4>
+                <p className="text-[10px] text-zinc-400 leading-relaxed hidden sm:block">
+                  {cat.desc}
+                </p>
+                <span className={`font-pixel text-[7px] ${cat.statColor}`}>
+                  {cat.stat}
+                </span>
               </Link>
             );
           })}
@@ -257,9 +303,9 @@ export default function HomeDashboard() {
 
       {/* Featured Highlights Section */}
       <div className="space-y-3">
-        <h3 className="text-xs font-black uppercase text-zinc-400 tracking-wider flex items-center gap-1.5">
+        <h3 className="font-pixel text-[8px] text-zinc-700 uppercase flex items-center gap-1.5">
           <TrendingUp className="h-4 w-4 text-primary" />
-          <span>Top Cohort Activity</span>
+          <span>Featured Content</span>
         </h3>
 
         {isLoading ? (
@@ -267,7 +313,7 @@ export default function HomeDashboard() {
             <Loader2 className="h-6 w-6 text-primary animate-spin" />
           </div>
         ) : featuredItems.length === 0 ? (
-          <div className="premium-card rounded-2xl p-6 text-center text-xs text-zinc-400 font-bold border border-zinc-150/80 dark:border-zinc-800/80">
+          <div className="pixel-card p-6 text-center text-xs text-zinc-400 font-bold">
             No active content highlights found. Be the first to contribute notes or write a blog post!
           </div>
         ) : (
@@ -276,37 +322,39 @@ export default function HomeDashboard() {
               <Link 
                 key={item.id} 
                 href={item.link}
-                className="premium-card rounded-2xl p-4 border border-zinc-150/80 dark:border-zinc-800/80 flex items-center justify-between gap-4 hover:border-primary/40 transition-all cursor-pointer"
+                className="pixel-card p-3.5 flex items-center justify-between gap-3 cursor-pointer"
               >
                 <div className="flex items-center gap-3">
-                  <div className={`flex h-9 w-9 items-center justify-center rounded-xl ${
+                  <div className={`flex h-9 w-9 items-center justify-center border-2 ${
                     item.type === "blog" 
-                      ? "bg-blue-50 text-blue-600 dark:bg-blue-950/20 dark:text-blue-400" 
-                      : "bg-orange-50 text-orange-600 dark:bg-orange-950/20 dark:text-orange-400"
+                      ? "bg-blue-50 text-blue-600 border-blue-200" 
+                      : "bg-orange-50 text-orange-600 border-orange-200"
                   }`}>
-                    {item.type === "blog" ? <FileText className="h-4.5 w-4.5" /> : <BookOpen className="h-4.5 w-4.5" />}
+                    {item.type === "blog" ? <FileText className="h-4 w-4" /> : <BookOpen className="h-4 w-4" />}
                   </div>
                   <div>
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className={`text-[9px] font-black uppercase tracking-wider ${
-                        item.type === "blog" ? "text-blue-500" : "text-orange-500"
+                      <span className={`pixel-tag text-[8px] ${
+                        item.type === "blog" 
+                          ? "text-blue-600 border-blue-200 bg-blue-50" 
+                          : "text-orange-600 border-orange-200 bg-orange-50"
                       }`}>
-                        {item.type.toUpperCase()}
+                        {item.type}
                       </span>
-                      <span className="text-[10px] text-zinc-400">• By {item.author}</span>
+                      <span className="text-[10px] text-zinc-400">By {item.author}</span>
                     </div>
-                    <h4 className="text-xs font-extrabold text-zinc-900 dark:text-white leading-tight mt-0.5 line-clamp-1">
+                    <h4 className="text-xs font-bold text-zinc-900 leading-tight mt-0.5 line-clamp-1">
                       {item.title}
                     </h4>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2.5">
-                  <span className="flex items-center gap-1 text-[10px] font-bold text-zinc-450">
+                <div className="flex items-center gap-2">
+                  <span className="flex items-center gap-1 text-[10px] font-bold text-zinc-400">
                     <Star className="h-3.5 w-3.5 text-amber-500 fill-amber-500/20" />
                     <span>{item.upvotes}</span>
                   </span>
-                  <div className="h-7 w-7 rounded-lg border border-zinc-100 dark:border-zinc-800 flex items-center justify-center text-zinc-400">
+                  <div className="h-7 w-7 border-2 border-zinc-200 flex items-center justify-center text-zinc-400 hover:border-primary hover:text-primary transition-all">
                     <ArrowRight className="h-3.5 w-3.5" />
                   </div>
                 </div>
@@ -316,6 +364,19 @@ export default function HomeDashboard() {
         )}
       </div>
 
+      {/* Hackathon banner */}
+      <div className="pixel-card p-4 flex items-center justify-between gap-4 bg-zinc-50 border-zinc-300">
+        <div className="flex items-center gap-3">
+          <span className="font-pixel text-[7px] text-primary">🏆</span>
+          <p className="text-xs font-bold text-zinc-700">
+            <span className="font-pixel text-[7px] text-primary mr-1">Weekly Hackathon Registration closes in 3 days.</span>
+            Join now and showcase your skills!
+          </p>
+        </div>
+        <Link href="/announcements" className="text-[10px] font-bold text-primary hover:underline flex items-center gap-0.5 shrink-0">
+          View details →
+        </Link>
+      </div>
     </div>
   );
 }

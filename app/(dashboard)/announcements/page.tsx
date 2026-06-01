@@ -107,17 +107,17 @@ export default function AnnouncementsPage() {
   const getAnnouncementTypeDetails = (type: string) => {
     switch (type) {
       case "placement":
-        return { label: "Placement Drive", variant: "primary" as const, icon: Briefcase, color: "text-orange-500 bg-orange-50 dark:bg-orange-950/20" };
+        return { label: "Placement Drive", variant: "primary" as const, icon: Briefcase, color: "text-orange-500 bg-orange-50 orange-950/20" };
       case "internship":
-        return { label: "Internship Opening", variant: "info" as const, icon: Sparkles, color: "text-blue-500 bg-blue-50 dark:bg-blue-950/20" };
+        return { label: "Internship Opening", variant: "info" as const, icon: Sparkles, color: "text-blue-500 bg-blue-50 blue-950/20" };
       case "hackathon":
-        return { label: "Hackathon Event", variant: "success" as const, icon: Trophy, color: "text-green-500 bg-green-50 dark:bg-green-950/20" };
+        return { label: "Hackathon Event", variant: "success" as const, icon: Trophy, color: "text-green-500 bg-green-50 green-950/20" };
       case "deadline":
-        return { label: "Submission Deadline", variant: "warning" as const, icon: Clock, color: "text-amber-500 bg-amber-50 dark:bg-amber-950/20" };
+        return { label: "Submission Deadline", variant: "warning" as const, icon: Clock, color: "text-amber-500 bg-amber-50 amber-950/20" };
       case "event":
-        return { label: "Cohort Meetup", variant: "success" as const, icon: Calendar, color: "text-purple-500 bg-purple-50 dark:bg-purple-950/20" };
+        return { label: "Cohort Meetup", variant: "success" as const, icon: Calendar, color: "text-purple-500 bg-purple-50 purple-950/20" };
       default:
-        return { label: "General", variant: "neutral" as const, icon: Megaphone, color: "text-zinc-500 bg-zinc-50 dark:bg-zinc-800" };
+        return { label: "General", variant: "neutral" as const, icon: Megaphone, color: "text-zinc-500 bg-zinc-50 zinc-800" };
     }
   };
 
@@ -131,7 +131,7 @@ export default function AnnouncementsPage() {
       {/* Upper Header section */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-2.5">
-          <div className="h-10 w-10 rounded-2xl bg-primary-50 dark:bg-primary-950/20 text-primary flex items-center justify-center shadow-inner">
+          <div className="h-10 w-10  bg-primary-50 primary-950/20 text-primary flex items-center justify-center shadow-inner">
             <Megaphone className="h-5.5 w-5.5 animate-pulse" />
           </div>
           <div>
@@ -147,7 +147,7 @@ export default function AnnouncementsPage() {
         {isAdminOrMod && (
           <Link
             href="/admin"
-            className="inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-primary hover:bg-primary-900 text-white rounded-xl text-xs font-bold transition-all shadow-md hover:shadow-lg cursor-pointer"
+            className="inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-primary hover:bg-primary-900 text-white  text-xs font-bold transition-all shadow-md hover:shadow-lg cursor-pointer"
           >
             <ShieldAlert className="h-4 w-4" />
             <span>Moderator Dashboard</span>
@@ -157,7 +157,7 @@ export default function AnnouncementsPage() {
       </div>
 
       {/* Filters and Search Panel */}
-      <div className="premium-card rounded-2xl p-4 border border-zinc-150/80 dark:border-zinc-800/80 grid grid-cols-1 md:grid-cols-12 gap-3.5 items-center">
+      <div className="pixel-card  p-4 border border-zinc-150/80 dark:border-zinc-800/80 grid grid-cols-1 md:grid-cols-12 gap-3.5 items-center">
         {/* Search */}
         <div className="relative md:col-span-5 w-full">
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400" />
@@ -166,7 +166,7 @@ export default function AnnouncementsPage() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search announcements..."
-            className="w-full pl-10 pr-4 py-2 text-xs rounded-xl border border-zinc-200 bg-zinc-50/50 focus:bg-white focus:outline-none focus:border-primary dark:border-zinc-800 dark:bg-zinc-900 dark:text-white transition-all font-semibold"
+            className="w-full pl-10 pr-4 py-2 text-xs  border border-zinc-200 bg-zinc-50/50 focus:bg-white focus:outline-none focus:border-primary dark:border-zinc-800 dark:text-white transition-all font-semibold"
           />
         </div>
 
@@ -175,7 +175,7 @@ export default function AnnouncementsPage() {
           <select
             value={selectedType}
             onChange={(e) => setSelectedType(e.target.value)}
-            className="w-full px-4 py-2 text-xs rounded-xl border border-zinc-200 bg-zinc-50/50 focus:bg-white focus:outline-none focus:border-primary dark:border-zinc-800 dark:bg-zinc-900 dark:text-white transition-all cursor-pointer"
+            className="w-full px-4 py-2 text-xs  border border-zinc-200 bg-zinc-50/50 focus:bg-white focus:outline-none focus:border-primary dark:border-zinc-800 dark:text-white transition-all cursor-pointer"
           >
             <option value="all">All Announcement Categories</option>
             <option value="placement">Placement Drive</option>
@@ -205,16 +205,16 @@ export default function AnnouncementsPage() {
       {isLoading ? (
         <div className="space-y-4">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="premium-card rounded-2xl p-5 border border-zinc-150/80 dark:border-zinc-800/80 animate-pulse space-y-3">
-              <div className="h-4 bg-zinc-200 dark:bg-zinc-800 rounded w-1/4"></div>
-              <div className="h-5 bg-zinc-200 dark:bg-zinc-800 rounded w-3/4"></div>
-              <div className="h-4 bg-zinc-200 dark:bg-zinc-800 rounded w-5/6"></div>
-              <div className="h-3 bg-zinc-200 dark:bg-zinc-800 rounded w-1/3"></div>
+            <div key={i} className="pixel-card  p-5 border border-zinc-150/80 dark:border-zinc-800/80 animate-pulse space-y-3">
+              <div className="h-4 bg-zinc-200 zinc-800 rounded w-1/4"></div>
+              <div className="h-5 bg-zinc-200 zinc-800 rounded w-3/4"></div>
+              <div className="h-4 bg-zinc-200 zinc-800 rounded w-5/6"></div>
+              <div className="h-3 bg-zinc-200 zinc-800 rounded w-1/3"></div>
             </div>
           ))}
         </div>
       ) : filteredAnnouncements.length === 0 ? (
-        <div className="premium-card rounded-3xl p-12 text-center border border-zinc-150/80 dark:border-zinc-800/80">
+        <div className="pixel-card  p-12 text-center border border-zinc-150/80 dark:border-zinc-800/80">
           <Megaphone className="h-10 w-10 text-zinc-300 dark:text-zinc-700 mx-auto mb-3" />
           <h3 className="text-sm font-bold text-zinc-800 dark:text-zinc-200 mb-1">
             No announcements found
@@ -244,14 +244,14 @@ export default function AnnouncementsPage() {
             return (
               <div 
                 key={ann.id} 
-                className={`premium-card rounded-2xl p-5 border transition-all relative overflow-hidden flex flex-col md:flex-row md:items-start gap-4 ${
+                className={`pixel-card  p-5 border transition-all relative overflow-hidden flex flex-col md:flex-row md:items-start gap-4 ${
                   isExpired 
-                    ? "bg-zinc-50/40 border-zinc-200 dark:bg-zinc-950/20 dark:border-zinc-850 opacity-75 hover:opacity-100" 
+                    ? "bg-zinc-50/40 border-zinc-200 zinc-950/20 dark:border-zinc-850 opacity-75 hover:opacity-100" 
                     : "border-zinc-150/80 dark:border-zinc-800/80"
                 }`}
               >
                 {/* Visual Category Accent Pin */}
-                <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl ${color} shadow-sm`}>
+                <div className={`flex h-11 w-11 shrink-0 items-center justify-center  ${color} shadow-sm`}>
                   <Icon className="h-5.5 w-5.5" />
                 </div>
 
@@ -261,7 +261,7 @@ export default function AnnouncementsPage() {
                     <div className="flex items-center gap-2">
                       <Tag label={label} variant={variant} size="xs" />
                       {isExpired && (
-                        <span className="bg-red-50 text-red-600 dark:bg-red-950/25 dark:text-red-400 border border-red-100 dark:border-red-900/10 px-2 py-0.5 rounded-full text-[9px] font-bold">
+                        <span className="bg-red-50 text-red-600 red-950/25 dark:text-red-400 border border-red-100 dark:border-red-900/10 px-2 py-0.5 rounded-full text-[9px] font-bold">
                           EXPIRED
                         </span>
                       )}

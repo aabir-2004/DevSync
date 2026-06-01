@@ -101,7 +101,7 @@ function SearchContent() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center gap-2">
-        <div className="h-9 w-9 rounded-2xl bg-primary-50 dark:bg-primary-950/20 text-primary flex items-center justify-center">
+        <div className="h-9 w-9  bg-primary-50 primary-950/20 text-primary flex items-center justify-center">
           <Search className="h-5 w-5" />
         </div>
         <div>
@@ -128,7 +128,7 @@ function SearchContent() {
         <div className="flex items-center gap-2 pb-2 border-b border-zinc-100/60 dark:border-zinc-800/40 text-xs font-semibold">
           <button
             onClick={() => setActiveTab("all")}
-            className={`px-3.5 py-1.5 rounded-xl border transition-all cursor-pointer ${
+            className={`px-3.5 py-1.5  border transition-all cursor-pointer ${
               activeTab === "all"
                 ? "bg-primary text-white border-primary"
                 : "border-zinc-200 text-zinc-600 hover:bg-zinc-50 dark:border-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-850"
@@ -138,7 +138,7 @@ function SearchContent() {
           </button>
           <button
             onClick={() => setActiveTab("blog")}
-            className={`px-3.5 py-1.5 rounded-xl border transition-all cursor-pointer ${
+            className={`px-3.5 py-1.5  border transition-all cursor-pointer ${
               activeTab === "blog"
                 ? "bg-primary text-white border-primary"
                 : "border-zinc-200 text-zinc-600 hover:bg-zinc-50 dark:border-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-850"
@@ -148,7 +148,7 @@ function SearchContent() {
           </button>
           <button
             onClick={() => setActiveTab("resource")}
-            className={`px-3.5 py-1.5 rounded-xl border transition-all cursor-pointer ${
+            className={`px-3.5 py-1.5  border transition-all cursor-pointer ${
               activeTab === "resource"
                 ? "bg-primary text-white border-primary"
                 : "border-zinc-200 text-zinc-600 hover:bg-zinc-50 dark:border-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-850"
@@ -158,7 +158,7 @@ function SearchContent() {
           </button>
           <button
             onClick={() => setActiveTab("forum")}
-            className={`px-3.5 py-1.5 rounded-xl border transition-all cursor-pointer ${
+            className={`px-3.5 py-1.5  border transition-all cursor-pointer ${
               activeTab === "forum"
                 ? "bg-primary text-white border-primary"
                 : "border-zinc-200 text-zinc-600 hover:bg-zinc-50 dark:border-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-850"
@@ -175,7 +175,7 @@ function SearchContent() {
           <Loader2 className="h-8 w-8 text-primary animate-spin" />
         </div>
       ) : filteredResults.length === 0 ? (
-        <div className="premium-card rounded-3xl p-10 flex flex-col items-center justify-center text-center">
+        <div className="pixel-card  p-10 flex flex-col items-center justify-center text-center">
           <p className="text-sm font-bold text-zinc-900 dark:text-white">
             {query.trim() ? "No matches found" : "Start searching..."}
           </p>
@@ -189,9 +189,9 @@ function SearchContent() {
         <div className="grid grid-cols-1 gap-3">
           {filteredResults.map((res) => (
             <Link key={res.id} href={getLink(res)} className="block group">
-              <div className="premium-card rounded-2xl p-4 flex items-center justify-between hover:border-primary-100 transition-all duration-150">
+              <div className="pixel-card  p-4 flex items-center justify-between hover:border-primary-100 transition-all duration-150">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-zinc-50 border border-zinc-150/80 dark:bg-zinc-900 dark:border-zinc-800">
+                  <div className="flex h-8 w-8 items-center justify-center  bg-zinc-50 border border-zinc-150/80 dark:border-zinc-800">
                     {getIcon(res.type)}
                   </div>
                   <div>

@@ -143,7 +143,7 @@ export default function BlogEditor() {
           <select
             value={status}
             onChange={(e) => setStatus(e.target.value as "draft" | "published")}
-            className="rounded-2xl border border-zinc-200 bg-zinc-50/50 px-3.5 py-1.5 text-xs font-semibold text-zinc-950 focus:outline-none dark:border-zinc-800 dark:bg-zinc-900 dark:text-white cursor-pointer"
+            className="rounded-2xl border border-zinc-200 bg-zinc-50/50 px-3.5 py-1.5 text-xs font-semibold text-zinc-950 focus:outline-none dark:border-zinc-800 dark:text-white cursor-pointer"
           >
             <option value="published">Publish Now</option>
             <option value="draft">Save Draft</option>
@@ -152,7 +152,7 @@ export default function BlogEditor() {
       </div>
 
       {error && (
-        <div className="rounded-xl bg-red-50 p-3.5 text-xs font-semibold text-red-700 dark:bg-red-950/20 dark:text-red-400 border border-red-100 dark:border-red-900/30">
+        <div className="rounded-xl bg-red-50 p-3.5 text-xs font-semibold text-red-700 dark:text-red-400 border border-red-100 dark:border-red-900/30">
           {error}
         </div>
       )}
@@ -168,7 +168,7 @@ export default function BlogEditor() {
           onChange={(e) => setTitle(e.target.value)}
           placeholder="e.g. In-depth Guide to React Server Components"
           disabled={isLoading}
-          className="w-full rounded-2xl border border-zinc-200 bg-zinc-50/50 py-2.5 px-4 text-xs text-zinc-900 focus:border-primary focus:bg-white focus:outline-none dark:border-zinc-800 dark:bg-zinc-900 dark:text-white transition-all font-semibold"
+          className="w-full rounded-2xl border border-zinc-200 bg-zinc-50/50 py-2.5 px-4 text-xs text-zinc-900 focus:border-primary focus:bg-white focus:outline-none dark:border-zinc-800 dark:text-white transition-all font-semibold"
         />
       </div>
 
@@ -183,7 +183,7 @@ export default function BlogEditor() {
           onChange={(e) => setExcerpt(e.target.value)}
           placeholder="A quick one-sentence summary for the preview feed..."
           disabled={isLoading}
-          className="w-full rounded-2xl border border-zinc-200 bg-zinc-50/50 py-2.5 px-4 text-xs text-zinc-900 focus:border-primary focus:bg-white focus:outline-none dark:border-zinc-800 dark:bg-zinc-900 dark:text-white transition-all"
+          className="w-full rounded-2xl border border-zinc-200 bg-zinc-50/50 py-2.5 px-4 text-xs text-zinc-900 focus:border-primary focus:bg-white focus:outline-none dark:border-zinc-800 dark:text-white transition-all"
         />
       </div>
 
@@ -191,76 +191,76 @@ export default function BlogEditor() {
       {editor && (
         <div className="border border-zinc-200 rounded-3xl dark:border-zinc-800 bg-zinc-50/20 overflow-hidden">
           {/* Toolbar */}
-          <div className="flex flex-wrap gap-1 p-2 border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50">
+          <div className="flex flex-wrap gap-1 p-2 border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50/50">
             <button
               type="button"
               onClick={() => editor.chain().focus().toggleBold().run()}
-              className={`p-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 ${editor.isActive("bold") ? "text-primary bg-primary-50 dark:bg-primary-950/20" : "text-zinc-400"}`}
+              className={`p-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 ${editor.isActive("bold") ? "text-primary bg-primary-50 primary-950/20" : "text-zinc-400"}`}
             >
               <Bold className="h-4 w-4" />
             </button>
             <button
               type="button"
               onClick={() => editor.chain().focus().toggleItalic().run()}
-              className={`p-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 ${editor.isActive("italic") ? "text-primary bg-primary-50 dark:bg-primary-950/20" : "text-zinc-400"}`}
+              className={`p-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 ${editor.isActive("italic") ? "text-primary bg-primary-50 primary-950/20" : "text-zinc-400"}`}
             >
               <Italic className="h-4 w-4" />
             </button>
             <button
               type="button"
               onClick={() => editor.chain().focus().toggleStrike().run()}
-              className={`p-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 ${editor.isActive("strike") ? "text-primary bg-primary-50 dark:bg-primary-950/20" : "text-zinc-400"}`}
+              className={`p-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 ${editor.isActive("strike") ? "text-primary bg-primary-50 primary-950/20" : "text-zinc-400"}`}
             >
               <Strikethrough className="h-4 w-4" />
             </button>
             <button
               type="button"
               onClick={() => editor.chain().focus().toggleCode().run()}
-              className={`p-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 ${editor.isActive("code") ? "text-primary bg-primary-50 dark:bg-primary-950/20" : "text-zinc-400"}`}
+              className={`p-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 ${editor.isActive("code") ? "text-primary bg-primary-50 primary-950/20" : "text-zinc-400"}`}
             >
               <CodeIcon className="h-4 w-4" />
             </button>
-            <div className="w-px bg-zinc-200 dark:bg-zinc-800 mx-1" />
+            <div className="w-px bg-zinc-200 zinc-800 mx-1" />
             <button
               type="button"
               onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
-              className={`p-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 ${editor.isActive("heading", { level: 1 }) ? "text-primary bg-primary-50 dark:bg-primary-950/20" : "text-zinc-400"}`}
+              className={`p-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 ${editor.isActive("heading", { level: 1 }) ? "text-primary bg-primary-50 primary-950/20" : "text-zinc-400"}`}
             >
               <Heading1 className="h-4 w-4" />
             </button>
             <button
               type="button"
               onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
-              className={`p-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 ${editor.isActive("heading", { level: 2 }) ? "text-primary bg-primary-50 dark:bg-primary-950/20" : "text-zinc-400"}`}
+              className={`p-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 ${editor.isActive("heading", { level: 2 }) ? "text-primary bg-primary-50 primary-950/20" : "text-zinc-400"}`}
             >
               <Heading2 className="h-4 w-4" />
             </button>
-            <div className="w-px bg-zinc-200 dark:bg-zinc-800 mx-1" />
+            <div className="w-px bg-zinc-200 zinc-800 mx-1" />
             <button
               type="button"
               onClick={() => editor.chain().focus().toggleBulletList().run()}
-              className={`p-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 ${editor.isActive("bulletList") ? "text-primary bg-primary-50 dark:bg-primary-950/20" : "text-zinc-400"}`}
+              className={`p-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 ${editor.isActive("bulletList") ? "text-primary bg-primary-50 primary-950/20" : "text-zinc-400"}`}
             >
               <List className="h-4 w-4" />
             </button>
             <button
               type="button"
               onClick={() => editor.chain().focus().toggleOrderedList().run()}
-              className={`p-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 ${editor.isActive("orderedList") ? "text-primary bg-primary-50 dark:bg-primary-950/20" : "text-zinc-400"}`}
+              className={`p-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 ${editor.isActive("orderedList") ? "text-primary bg-primary-50 primary-950/20" : "text-zinc-400"}`}
             >
               <ListOrdered className="h-4 w-4" />
             </button>
             <button
               type="button"
               onClick={() => editor.chain().focus().toggleBlockquote().run()}
-              className={`p-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 ${editor.isActive("blockquote") ? "text-primary bg-primary-50 dark:bg-primary-950/20" : "text-zinc-400"}`}
+              className={`p-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 ${editor.isActive("blockquote") ? "text-primary bg-primary-50 primary-950/20" : "text-zinc-400"}`}
             >
               <Quote className="h-4 w-4" />
             </button>
           </div>
 
           {/* Editor Area */}
-          <div className="p-4 bg-white dark:bg-zinc-950 min-h-[300px]">
+          <div className="p-4 bg-white zinc-950 min-h-[300px]">
             <EditorContent editor={editor} />
           </div>
         </div>
@@ -279,12 +279,12 @@ export default function BlogEditor() {
           onKeyDown={handleAddTag}
           placeholder="e.g. nextjs, frontend, optimization"
           disabled={isLoading}
-          className="w-full rounded-2xl border border-zinc-200 bg-zinc-50/50 py-2.5 px-4 text-xs text-zinc-900 focus:border-primary focus:bg-white focus:outline-none dark:border-zinc-800 dark:bg-zinc-900 dark:text-white transition-all"
+          className="w-full rounded-2xl border border-zinc-200 bg-zinc-50/50 py-2.5 px-4 text-xs text-zinc-900 focus:border-primary focus:bg-white focus:outline-none dark:border-zinc-800 dark:text-white transition-all"
         />
         {tags.length > 0 && (
           <div className="flex flex-wrap gap-1.5 pt-1.5">
             {tags.map((t) => (
-              <span key={t} className="inline-flex items-center gap-1 bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-200 text-xs px-2.5 py-0.5 rounded-full">
+              <span key={t} className="inline-flex items-center gap-1 bg-zinc-100 text-zinc-700 zinc-800 dark:text-zinc-200 text-xs px-2.5 py-0.5 rounded-full">
                 {t}
                 <button
                   type="button"

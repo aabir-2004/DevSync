@@ -24,12 +24,12 @@ export default function Tag({
   };
 
   const variantStyles = {
-    primary: "bg-primary-50 text-primary dark:bg-primary-950/40 border border-primary-100 dark:border-primary-900/30",
-    secondary: "bg-zinc-100 text-zinc-800 dark:bg-zinc-800 dark:text-zinc-200 border border-zinc-200 dark:border-zinc-700/50",
-    success: "bg-green-50 text-green-700 dark:bg-green-950/30 dark:text-green-400 border border-green-100 dark:border-green-900/20",
-    warning: "bg-amber-50 text-amber-700 dark:bg-amber-950/30 dark:text-amber-400 border border-amber-100 dark:border-amber-900/20",
-    info: "bg-blue-50 text-blue-700 dark:bg-blue-950/30 dark:text-blue-400 border border-blue-100 dark:border-blue-900/20",
-    neutral: "bg-zinc-50 text-zinc-600 dark:bg-zinc-900/50 dark:text-zinc-400 border border-zinc-100 dark:border-zinc-800",
+    primary: "bg-primary-50 text-primary primary-950/40 border border-primary-100 dark:border-primary-900/30",
+    secondary: "bg-zinc-100 text-zinc-800 zinc-800 dark:text-zinc-200 border border-zinc-200 dark:border-zinc-700/50",
+    success: "bg-green-50 text-green-700 green-950/30 dark:text-green-400 border border-green-100 dark:border-green-900/20",
+    warning: "bg-amber-50 text-amber-700 amber-950/30 dark:text-amber-400 border border-amber-100 dark:border-amber-900/20",
+    info: "bg-blue-50 text-blue-700 blue-950/30 dark:text-blue-400 border border-blue-100 dark:border-blue-900/20",
+    neutral: "bg-zinc-50 text-zinc-600 dark:text-zinc-400 border border-zinc-100 dark:border-zinc-800",
   };
 
   const clickableStyles = clickable

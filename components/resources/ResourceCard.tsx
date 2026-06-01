@@ -52,7 +52,7 @@ export default function ResourceCard({ resource }: ResourceCardProps) {
   };
 
   return (
-    <div className="premium-card rounded-3xl p-5 flex flex-col gap-4 relative overflow-hidden group">
+    <div className="pixel-card  p-5 flex flex-col gap-4 relative overflow-hidden group">
       
       {/* Top Bar: Category & Semester */}
       <div className="flex items-center justify-between">
@@ -99,7 +99,7 @@ export default function ResourceCard({ resource }: ResourceCardProps) {
       )}
 
       {/* Divider */}
-      <div className="h-px bg-zinc-100 dark:bg-zinc-800/60 my-1" />
+      <div className="h-px bg-zinc-100 zinc-800/60 my-1" />
 
       {/* Bottom Row: Vote, External URL, Author & Date */}
       <div className="flex items-center justify-between">

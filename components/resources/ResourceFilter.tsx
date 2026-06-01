@@ -70,10 +70,10 @@ export default function ResourceFilter({ filters, onChange }: ResourceFilterProp
         <select
           value={filters.category}
           onChange={(e) => setFilter("category", e.target.value)}
-          className="w-full rounded-2xl border border-zinc-200 bg-zinc-50/50 px-3 py-2 text-xs text-zinc-900 focus:border-primary focus:bg-white focus:outline-none dark:border-zinc-800 dark:bg-zinc-900 dark:text-white transition-all cursor-pointer"
+          className="w-full rounded-2xl border border-zinc-200 bg-zinc-50/50 px-3 py-2 text-xs text-zinc-900 focus:border-primary focus:bg-white focus:outline-none dark:border-zinc-800 dark:text-white transition-all cursor-pointer"
         >
           {categories.map((cat) => (
-            <option key={cat.value} value={cat.value} className="dark:bg-zinc-950">
+            <option key={cat.value} value={cat.value} className="zinc-950">
               {cat.label}
             </option>
           ))}
@@ -89,10 +89,10 @@ export default function ResourceFilter({ filters, onChange }: ResourceFilterProp
         <select
           value={filters.semester}
           onChange={(e) => setFilter("semester", e.target.value)}
-          className="w-full rounded-2xl border border-zinc-200 bg-zinc-50/50 px-3 py-2 text-xs text-zinc-900 focus:border-primary focus:bg-white focus:outline-none dark:border-zinc-800 dark:bg-zinc-900 dark:text-white transition-all cursor-pointer"
+          className="w-full rounded-2xl border border-zinc-200 bg-zinc-50/50 px-3 py-2 text-xs text-zinc-900 focus:border-primary focus:bg-white focus:outline-none dark:border-zinc-800 dark:text-white transition-all cursor-pointer"
         >
           {semesters.map((sem) => (
-            <option key={sem.value} value={sem.value} className="dark:bg-zinc-950">
+            <option key={sem.value} value={sem.value} className="zinc-950">
               {sem.label}
             </option>
           ))}
@@ -108,10 +108,10 @@ export default function ResourceFilter({ filters, onChange }: ResourceFilterProp
         <select
           value={filters.sortBy}
           onChange={(e) => setFilter("sortBy", e.target.value)}
-          className="w-full rounded-2xl border border-zinc-200 bg-zinc-50/50 px-3 py-2 text-xs text-zinc-900 focus:border-primary focus:bg-white focus:outline-none dark:border-zinc-800 dark:bg-zinc-900 dark:text-white transition-all cursor-pointer"
+          className="w-full rounded-2xl border border-zinc-200 bg-zinc-50/50 px-3 py-2 text-xs text-zinc-900 focus:border-primary focus:bg-white focus:outline-none dark:border-zinc-800 dark:text-white transition-all cursor-pointer"
         >
           {sortOptions.map((opt) => (
-            <option key={opt.value} value={opt.value} className="dark:bg-zinc-950">
+            <option key={opt.value} value={opt.value} className="zinc-950">
               {opt.label}
             </option>
           ))}

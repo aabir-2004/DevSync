@@ -13,7 +13,7 @@ export default function ResourceGrid({ resources, isLoading }: ResourceGridProps
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {[...Array(6)].map((_, idx) => (
-          <div key={idx} className="premium-card rounded-3xl p-5 flex flex-col gap-4">
+          <div key={idx} className="pixel-card  p-5 flex flex-col gap-4">
             <div className="flex justify-between items-center">
               <Skeleton className="h-5 w-20 rounded-full" />
               <Skeleton className="h-4 w-12 rounded" />
@@ -27,7 +27,7 @@ export default function ResourceGrid({ resources, isLoading }: ResourceGridProps
               <Skeleton className="h-4 w-12 rounded-full" />
               <Skeleton className="h-4 w-16 rounded-full" />
             </div>
-            <div className="h-px bg-zinc-100 dark:bg-zinc-800/60 my-1" />
+            <div className="h-px bg-zinc-100 zinc-800/60 my-1" />
             <div className="flex justify-between items-center">
               <div className="flex gap-2 items-center">
                 <Skeleton className="h-6 w-6 rounded-full" />
@@ -46,7 +46,7 @@ export default function ResourceGrid({ resources, isLoading }: ResourceGridProps
 
   if (resources.length === 0) {
     return (
-      <div className="premium-card rounded-3xl p-10 flex flex-col items-center justify-center text-center">
+      <div className="pixel-card  p-10 flex flex-col items-center justify-center text-center">
         <p className="text-sm font-bold text-zinc-900 dark:text-white">
           No resources found
         </p>

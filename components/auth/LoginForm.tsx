@@ -94,7 +94,7 @@ export default function LoginForm() {
       </div>
 
       {submitError && (
-        <div className="rounded-xl bg-red-50 p-3.5 text-xs font-semibold text-red-700 dark:bg-red-950/20 dark:text-red-400 border border-red-100 dark:border-red-900/30">
+        <div className="rounded-xl bg-red-50 p-3.5 text-xs font-semibold text-red-700 dark:text-red-400 border border-red-100 dark:border-red-900/30">
           {submitError}
         </div>
       )}
@@ -115,7 +115,7 @@ export default function LoginForm() {
             onChange={handleChange}
             placeholder="name@decsync.com"
             disabled={isLoading}
-            className="w-full rounded-2xl border border-zinc-200 bg-zinc-50/50 py-2.5 pl-10 pr-4 text-xs text-zinc-900 placeholder-zinc-400 focus:border-primary focus:bg-white focus:outline-none dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100 dark:placeholder-zinc-500 transition-all"
+            className="w-full rounded-2xl border border-zinc-200 bg-zinc-50/50 py-2.5 pl-10 pr-4 text-xs text-zinc-900 placeholder-zinc-400 focus:border-primary focus:bg-white focus:outline-none dark:border-zinc-800 dark:text-zinc-100 dark:placeholder-zinc-500 transition-all"
           />
         </div>
         {formErrors.email && (
@@ -147,7 +147,7 @@ export default function LoginForm() {
             onChange={handleChange}
             placeholder="••••••••"
             disabled={isLoading}
-            className="w-full rounded-2xl border border-zinc-200 bg-zinc-50/50 py-2.5 pl-10 pr-10 text-xs text-zinc-900 placeholder-zinc-400 focus:border-primary focus:bg-white focus:outline-none dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100 dark:placeholder-zinc-500 transition-all"
+            className="w-full rounded-2xl border border-zinc-200 bg-zinc-50/50 py-2.5 pl-10 pr-10 text-xs text-zinc-900 placeholder-zinc-400 focus:border-primary focus:bg-white focus:outline-none dark:border-zinc-800 dark:text-zinc-100 dark:placeholder-zinc-500 transition-all"
           />
           <button
             type="button"

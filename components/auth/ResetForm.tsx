@@ -80,7 +80,7 @@ export default function ResetForm() {
   if (isSuccess) {
     return (
       <div className="text-center">
-        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-green-50 dark:bg-green-950/20 text-green-500 mb-6">
+        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-green-50 green-950/20 text-green-500 mb-6">
           <CheckCircle className="h-6 w-6 animate-pulse" />
         </div>
         <h2 className="text-xl font-bold text-zinc-900 dark:text-white">
@@ -106,7 +106,7 @@ export default function ResetForm() {
       </div>
 
       {error && (
-        <div className="rounded-xl bg-red-50 p-3.5 text-xs font-semibold text-red-700 dark:bg-red-950/20 dark:text-red-400 border border-red-100 dark:border-red-900/30">
+        <div className="rounded-xl bg-red-50 p-3.5 text-xs font-semibold text-red-700 dark:text-red-400 border border-red-100 dark:border-red-900/30">
           {error}
         </div>
       )}
@@ -124,7 +124,7 @@ export default function ResetForm() {
             onChange={handleChange}
             placeholder="••••••••"
             disabled={isLoading}
-            className="w-full rounded-2xl border border-zinc-200 bg-zinc-50/50 py-2.5 px-4 text-xs text-zinc-900 placeholder-zinc-400 focus:border-primary focus:bg-white focus:outline-none dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100 dark:placeholder-zinc-500 transition-all"
+            className="w-full rounded-2xl border border-zinc-200 bg-zinc-50/50 py-2.5 px-4 text-xs text-zinc-900 placeholder-zinc-400 focus:border-primary focus:bg-white focus:outline-none dark:border-zinc-800 dark:text-zinc-100 dark:placeholder-zinc-500 transition-all"
           />
         </div>
         {formErrors.password && (
@@ -147,7 +147,7 @@ export default function ResetForm() {
             onChange={handleChange}
             placeholder="••••••••"
             disabled={isLoading}
-            className="w-full rounded-2xl border border-zinc-200 bg-zinc-50/50 py-2.5 px-4 text-xs text-zinc-900 placeholder-zinc-400 focus:border-primary focus:bg-white focus:outline-none dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100 dark:placeholder-zinc-500 transition-all"
+            className="w-full rounded-2xl border border-zinc-200 bg-zinc-50/50 py-2.5 px-4 text-xs text-zinc-900 placeholder-zinc-400 focus:border-primary focus:bg-white focus:outline-none dark:border-zinc-800 dark:text-zinc-100 dark:placeholder-zinc-500 transition-all"
           />
           <button
             type="button"

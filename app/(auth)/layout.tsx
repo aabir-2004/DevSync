@@ -6,7 +6,7 @@ export default function AuthLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <div className="flex flex-col justify-center items-center min-h-screen py-12 sm:px-6 lg:px-8 bg-gradient-to-tr from-zinc-50 via-white to-orange-50/20 dark:from-zinc-950 dark:via-zinc-950 dark:to-primary-950/10">
+    <div className="flex flex-col justify-center items-center min-h-screen py-12 sm:px-6 lg:px-8 bg-gradient-to-tr from-zinc-50 via-white to-orange-50/20 dark:from-zinc-950 dark:via-zinc-950 primary-950/10">
       
       {/* Brand Logo Header */}
       <div className="sm:mx-auto sm:w-full sm:max-w-md text-center mb-6">
@@ -22,7 +22,7 @@ export default function AuthLayout({
 
       {/* Main Form container Card */}
       <div className="w-full sm:max-w-md">
-        <div className="premium-card rounded-3xl p-8 bg-white/70 dark:bg-zinc-900/50 backdrop-blur-xl shadow-xl dark:shadow-2xl border border-zinc-150/80 dark:border-zinc-800/80">
+        <div className="premium-card rounded-3xl p-8 bg-white/70 backdrop-blur-xl shadow-xl dark:shadow-2xl border border-zinc-150/80 dark:border-zinc-800/80">
           {children}
         </div>
       </div>

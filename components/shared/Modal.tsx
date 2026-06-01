@@ -42,7 +42,7 @@ export default function Modal({
       {/* Modal Dialog */}
       <div
         ref={modalRef}
-        className="w-full max-w-lg rounded-2xl bg-white shadow-2xl border border-zinc-150 p-6 dark:bg-zinc-900 dark:border-zinc-800 animate-in zoom-in-95 slide-in-from-bottom-4 duration-200"
+        className="w-full max-w-lg rounded-2xl bg-white shadow-2xl border border-zinc-150 p-6 dark:border-zinc-800 animate-in zoom-in-95 slide-in-from-bottom-4 duration-200"
       >
         {/* Header */}
         <div className="flex items-center justify-between pb-3 border-b border-zinc-100 dark:border-zinc-800">

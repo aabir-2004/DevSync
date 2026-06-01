@@ -9,7 +9,7 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen pixel-grid-bg">
       <Navbar />
       
       {/* Main 3-Column Shell */}
@@ -17,7 +17,7 @@ export default function DashboardLayout({
         <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
           
           {/* Left: Sidebar (3 cols on md/lg) */}
-          <aside className="col-span-1 md:col-span-4 lg:col-span-3 md:sticky md:top-24">
+          <aside className="col-span-1 md:col-span-4 lg:col-span-3 md:sticky md:top-20">
             <Sidebar />
           </aside>
           
@@ -27,7 +27,7 @@ export default function DashboardLayout({
           </main>
           
           {/* Right: Panel (3 cols, hidden on md) */}
-          <aside className="hidden lg:block lg:col-span-3 lg:sticky lg:top-24">
+          <aside className="hidden lg:block lg:col-span-3 lg:sticky lg:top-20">
             <RightPanel />
           </aside>
           

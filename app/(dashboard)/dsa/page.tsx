@@ -246,7 +246,7 @@ export default function DSAPage() {
       {/* Header section */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-2.5">
-          <div className="h-10 w-10 rounded-2xl bg-primary-50 dark:bg-primary-950/20 text-primary flex items-center justify-center shadow-inner">
+          <div className="h-10 w-10  bg-primary-50 primary-950/20 text-primary flex items-center justify-center shadow-inner">
             <Trophy className="h-5.5 w-5.5" />
           </div>
           <div>
@@ -262,7 +262,7 @@ export default function DSAPage() {
         {problems.length === 0 && !isLoading && (
           <button
             onClick={handleSeedProblems}
-            className="flex items-center gap-1.5 px-4 py-2 bg-primary hover:bg-primary-900 text-white rounded-xl text-xs font-bold transition-all shadow-md cursor-pointer"
+            className="flex items-center gap-1.5 px-4 py-2 bg-primary hover:bg-primary-900 text-white  text-xs font-bold transition-all shadow-md cursor-pointer"
           >
             <Plus className="h-4 w-4" />
             <span>Seed Cohort Sheet</span>
@@ -274,7 +274,7 @@ export default function DSAPage() {
       {problems.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           {/* Main Progress circular */}
-          <div className="premium-card rounded-2xl p-5 border border-zinc-150/80 dark:border-zinc-800/80 flex items-center gap-5 md:col-span-2">
+          <div className="pixel-card  p-5 border border-zinc-150/80 dark:border-zinc-800/80 flex items-center gap-5 md:col-span-2">
             <div className="relative h-20 w-20 flex items-center justify-center shrink-0">
               <svg className="absolute h-full w-full transform -rotate-90">
                 <circle
@@ -316,7 +316,7 @@ export default function DSAPage() {
           </div>
 
           {/* Difficulty breakdown */}
-          <div className="premium-card rounded-2xl p-5 border border-zinc-150/80 dark:border-zinc-800/80 md:col-span-2 flex flex-col justify-center space-y-3">
+          <div className="pixel-card  p-5 border border-zinc-150/80 dark:border-zinc-800/80 md:col-span-2 flex flex-col justify-center space-y-3">
             <h3 className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">Difficulty Splits</h3>
             <div className="grid grid-cols-3 gap-3 text-center">
               <div>
@@ -344,7 +344,7 @@ export default function DSAPage() {
 
       {/* Filter Options */}
       {problems.length > 0 && (
-        <div className="premium-card rounded-2xl p-4 border border-zinc-150/80 dark:border-zinc-800/80 grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div className="pixel-card  p-4 border border-zinc-150/80 dark:border-zinc-800/80 grid grid-cols-1 sm:grid-cols-3 gap-3">
           {/* Search Input */}
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-zinc-400" />
@@ -353,7 +353,7 @@ export default function DSAPage() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search problem title..."
-              className="w-full pl-9 pr-4 py-2 text-xs rounded-xl border border-zinc-200 bg-zinc-50/50 focus:bg-white focus:outline-none focus:border-primary dark:border-zinc-800 dark:bg-zinc-900 dark:text-white transition-all font-semibold"
+              className="w-full pl-9 pr-4 py-2 text-xs  border border-zinc-200 bg-zinc-50/50 focus:bg-white focus:outline-none focus:border-primary dark:border-zinc-800 dark:text-white transition-all font-semibold"
             />
           </div>
 
@@ -361,7 +361,7 @@ export default function DSAPage() {
           <select
             value={selectedTopic}
             onChange={(e) => setSelectedTopic(e.target.value)}
-            className="px-4 py-2 text-xs rounded-xl border border-zinc-200 bg-zinc-50/50 focus:bg-white focus:outline-none focus:border-primary dark:border-zinc-800 dark:bg-zinc-900 dark:text-white transition-all cursor-pointer"
+            className="px-4 py-2 text-xs  border border-zinc-200 bg-zinc-50/50 focus:bg-white focus:outline-none focus:border-primary dark:border-zinc-800 dark:text-white transition-all cursor-pointer"
           >
             <option value="all">All Topics</option>
             {uniqueTopics.map((topic) => (
@@ -373,7 +373,7 @@ export default function DSAPage() {
           <select
             value={selectedDifficulty}
             onChange={(e) => setSelectedDifficulty(e.target.value)}
-            className="px-4 py-2 text-xs rounded-xl border border-zinc-200 bg-zinc-50/50 focus:bg-white focus:outline-none focus:border-primary dark:border-zinc-800 dark:bg-zinc-900 dark:text-white transition-all cursor-pointer"
+            className="px-4 py-2 text-xs  border border-zinc-200 bg-zinc-50/50 focus:bg-white focus:outline-none focus:border-primary dark:border-zinc-800 dark:text-white transition-all cursor-pointer"
           >
             <option value="all">All Difficulties</option>
             <option value="easy">Easy</option>
@@ -389,7 +389,7 @@ export default function DSAPage() {
           <Loader2 className="h-7 w-7 text-primary animate-spin" />
         </div>
       ) : problems.length === 0 ? (
-        <div className="premium-card rounded-3xl p-12 text-center border border-zinc-150/80 dark:border-zinc-800/80">
+        <div className="pixel-card  p-12 text-center border border-zinc-150/80 dark:border-zinc-800/80">
           <BookOpen className="h-10 w-10 text-zinc-300 dark:text-zinc-700 mx-auto mb-3" />
           <h3 className="text-sm font-bold text-zinc-800 dark:text-zinc-200 mb-1">
             No DSA sheets uploaded yet
@@ -399,14 +399,14 @@ export default function DSAPage() {
           </p>
           <button
             onClick={handleSeedProblems}
-            className="inline-flex items-center gap-1.5 px-4 py-2 bg-primary hover:bg-primary-900 text-white rounded-xl text-xs font-bold transition-all shadow-md cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-4 py-2 bg-primary hover:bg-primary-900 text-white  text-xs font-bold transition-all shadow-md cursor-pointer"
           >
             <Plus className="h-4 w-4" />
             <span>Seed Sample Problem Set</span>
           </button>
         </div>
       ) : filteredList.length === 0 ? (
-        <div className="premium-card rounded-3xl p-10 text-center border border-zinc-150/80 dark:border-zinc-800/80 text-xs text-zinc-450 font-bold">
+        <div className="pixel-card  p-10 text-center border border-zinc-150/80 dark:border-zinc-800/80 text-xs text-zinc-450 font-bold">
           No problems match your filter query.
         </div>
       ) : (
@@ -421,11 +421,11 @@ export default function DSAPage() {
               const isExpanded = expandedTopics[topic] ?? true;
 
               return (
-                <div key={topic} className="premium-card rounded-2xl border border-zinc-150/80 dark:border-zinc-800/80 overflow-hidden">
+                <div key={topic} className="pixel-card  border border-zinc-150/80 dark:border-zinc-800/80 overflow-hidden">
                   {/* Topic Group Header */}
                   <button
                     onClick={() => toggleTopicExpand(topic)}
-                    className="w-full flex items-center justify-between px-5 py-4 bg-zinc-50/50 dark:bg-zinc-900/30 border-b border-zinc-100 dark:border-zinc-850/60 font-black text-xs text-zinc-700 dark:text-zinc-300 uppercase tracking-wide cursor-pointer"
+                    className="w-full flex items-center justify-between px-5 py-4 bg-zinc-50/50 border-b border-zinc-100 dark:border-zinc-850/60 font-black text-xs text-zinc-700 dark:text-zinc-300 uppercase tracking-wide cursor-pointer"
                   >
                     <div className="flex items-center gap-2">
                       <Layers className="h-4 w-4 text-primary" />
@@ -454,10 +454,10 @@ export default function DSAPage() {
                             
                             // Color mapping for difficulty
                             const diffColor = p.difficulty === "easy" 
-                              ? "bg-green-50 text-green-700 dark:bg-green-950/20 dark:text-green-400" 
+                              ? "bg-green-50 text-green-700 green-950/20 dark:text-green-400" 
                               : p.difficulty === "medium"
-                              ? "bg-amber-50 text-amber-700 dark:bg-amber-950/20 dark:text-amber-400"
-                              : "bg-red-50 text-red-600 dark:bg-red-950/20 dark:text-red-400";
+                              ? "bg-amber-50 text-amber-700 amber-950/20 dark:text-amber-400"
+                              : "bg-red-50 text-red-600 dark:text-red-400";
 
                             return (
                               <tr key={p.id} className="hover:bg-zinc-50/40 dark:hover:bg-zinc-900/10 transition-colors">
@@ -476,7 +476,7 @@ export default function DSAPage() {
                                         className={`h-5 w-5 rounded-md border flex items-center justify-center transition-all cursor-pointer ${
                                           status === "solved"
                                             ? "bg-green-500 border-green-500 text-white shadow-sm"
-                                            : "border-zinc-350 bg-white hover:border-primary dark:bg-zinc-900 dark:border-zinc-700"
+                                            : "border-zinc-350 bg-white hover:border-primary dark:border-zinc-700"
                                         }`}
                                       >
                                         {status === "solved" && <CheckCircle2 className="h-3.5 w-3.5" />}
@@ -512,7 +512,7 @@ export default function DSAPage() {
                                   <div className="flex items-center gap-1.5 flex-wrap">
                                     <span>{p.title}</span>
                                     {p.is_weekly && (
-                                      <span className="bg-primary-50 text-primary dark:bg-primary-950/20 text-[9px] font-extrabold px-1.5 py-0.5 rounded flex items-center gap-0.5 animate-pulse">
+                                      <span className="bg-primary-50 text-primary primary-950/20 text-[9px] font-extrabold px-1.5 py-0.5 rounded flex items-center gap-0.5 animate-pulse">
                                         <Flame className="h-3 w-3 fill-primary-400" />
                                         Weekly
                                       </span>

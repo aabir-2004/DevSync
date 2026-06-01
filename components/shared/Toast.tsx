@@ -32,9 +32,9 @@ export default function Toast({
   };
 
   const bgStyles = {
-    success: "bg-white border-green-100 dark:bg-zinc-900 dark:border-green-950/30",
-    error: "bg-white border-red-100 dark:bg-zinc-900 dark:border-red-950/30",
-    info: "bg-white border-zinc-100 dark:bg-zinc-900 dark:border-zinc-800",
+    success: "bg-white border-green-100 dark:border-green-950/30",
+    error: "bg-white border-red-100 dark:border-red-950/30",
+    info: "bg-white border-zinc-100 dark:border-zinc-800",
   };
 
   return (

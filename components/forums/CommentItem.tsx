@@ -123,7 +123,7 @@ export default function CommentItem({ comment, currentUser, onRefresh }: Comment
 
         {/* Inline Reply Form (when replying) */}
         {isReplying && (
-          <div className="mt-3 bg-zinc-50/50 p-4 rounded-2xl border border-zinc-100 dark:bg-zinc-900/30 dark:border-zinc-800">
+          <div className="mt-3 bg-zinc-50/50 p-4 rounded-2xl border border-zinc-100 dark:border-zinc-800">
             <CommentForm
               threadId={comment.thread_id}
               parentId={comment.id}

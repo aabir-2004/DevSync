@@ -127,7 +127,7 @@ export default function ResourceUploadForm() {
       </div>
 
       {submitError && (
-        <div className="rounded-xl bg-red-50 p-3.5 text-xs font-semibold text-red-700 dark:bg-red-950/20 dark:text-red-400 border border-red-100 dark:border-red-900/30">
+        <div className="rounded-xl bg-red-50 p-3.5 text-xs font-semibold text-red-700 dark:text-red-400 border border-red-100 dark:border-red-900/30">
           {submitError}
         </div>
       )}
@@ -144,7 +144,7 @@ export default function ResourceUploadForm() {
           onChange={handleChange}
           placeholder="e.g. Master-Theorem-Cheatsheet.pdf"
           disabled={isLoading}
-          className="w-full rounded-2xl border border-zinc-200 bg-zinc-50/50 py-2.5 px-4 text-xs text-zinc-900 focus:border-primary focus:bg-white focus:outline-none dark:border-zinc-800 dark:bg-zinc-900 dark:text-white transition-all"
+          className="w-full rounded-2xl border border-zinc-200 bg-zinc-50/50 py-2.5 px-4 text-xs text-zinc-900 focus:border-primary focus:bg-white focus:outline-none dark:border-zinc-800 dark:text-white transition-all"
         />
         {errors.title && <p className="text-[10px] font-semibold text-red-500">{errors.title}</p>}
       </div>
@@ -161,7 +161,7 @@ export default function ResourceUploadForm() {
           rows={3}
           placeholder="What is this resource about? Mention key topics covered..."
           disabled={isLoading}
-          className="w-full rounded-2xl border border-zinc-200 bg-zinc-50/50 py-2.5 px-4 text-xs text-zinc-900 focus:border-primary focus:bg-white focus:outline-none dark:border-zinc-800 dark:bg-zinc-900 dark:text-white transition-all"
+          className="w-full rounded-2xl border border-zinc-200 bg-zinc-50/50 py-2.5 px-4 text-xs text-zinc-900 focus:border-primary focus:bg-white focus:outline-none dark:border-zinc-800 dark:text-white transition-all"
         />
       </div>
 
@@ -178,10 +178,10 @@ export default function ResourceUploadForm() {
             value={formData.category}
             onChange={handleChange}
             disabled={isLoading}
-            className="w-full rounded-2xl border border-zinc-200 bg-zinc-50/50 py-2.5 px-4 text-xs text-zinc-900 focus:border-primary focus:bg-white focus:outline-none dark:border-zinc-800 dark:bg-zinc-900 dark:text-white transition-all cursor-pointer"
+            className="w-full rounded-2xl border border-zinc-200 bg-zinc-50/50 py-2.5 px-4 text-xs text-zinc-900 focus:border-primary focus:bg-white focus:outline-none dark:border-zinc-800 dark:text-white transition-all cursor-pointer"
           >
             {categories.map((c) => (
-              <option key={c.value} value={c.value} className="dark:bg-zinc-950">
+              <option key={c.value} value={c.value} className="zinc-950">
                 {c.label}
               </option>
             ))}
@@ -199,11 +199,11 @@ export default function ResourceUploadForm() {
             value={formData.semester}
             onChange={handleChange}
             disabled={isLoading}
-            className="w-full rounded-2xl border border-zinc-200 bg-zinc-50/50 py-2.5 px-4 text-xs text-zinc-900 focus:border-primary focus:bg-white focus:outline-none dark:border-zinc-800 dark:bg-zinc-900 dark:text-white transition-all cursor-pointer"
+            className="w-full rounded-2xl border border-zinc-200 bg-zinc-50/50 py-2.5 px-4 text-xs text-zinc-900 focus:border-primary focus:bg-white focus:outline-none dark:border-zinc-800 dark:text-white transition-all cursor-pointer"
           >
             <option value="">N/A (All Semesters)</option>
             {[...Array(8)].map((_, i) => (
-              <option key={i + 1} value={i + 1} className="dark:bg-zinc-950">
+              <option key={i + 1} value={i + 1} className="zinc-950">
                 Semester {i + 1}
               </option>
             ))}
@@ -223,7 +223,7 @@ export default function ResourceUploadForm() {
           onChange={handleChange}
           placeholder="e.g. Design & Analysis of Algorithms"
           disabled={isLoading}
-          className="w-full rounded-2xl border border-zinc-200 bg-zinc-50/50 py-2.5 px-4 text-xs text-zinc-900 focus:border-primary focus:bg-white focus:outline-none dark:border-zinc-800 dark:bg-zinc-900 dark:text-white transition-all"
+          className="w-full rounded-2xl border border-zinc-200 bg-zinc-50/50 py-2.5 px-4 text-xs text-zinc-900 focus:border-primary focus:bg-white focus:outline-none dark:border-zinc-800 dark:text-white transition-all"
         />
       </div>
 
@@ -240,7 +240,7 @@ export default function ResourceUploadForm() {
           onChange={handleChange}
           placeholder="e.g. https://drive.google.com/..."
           disabled={isLoading}
-          className="w-full rounded-2xl border border-zinc-200 bg-zinc-50/50 py-2.5 px-4 text-xs text-zinc-900 focus:border-primary focus:bg-white focus:outline-none dark:border-zinc-800 dark:bg-zinc-900 dark:text-white transition-all"
+          className="w-full rounded-2xl border border-zinc-200 bg-zinc-50/50 py-2.5 px-4 text-xs text-zinc-900 focus:border-primary focus:bg-white focus:outline-none dark:border-zinc-800 dark:text-white transition-all"
         />
         {errors.external_url && <p className="text-[10px] font-semibold text-red-500">{errors.external_url}</p>}
       </div>
@@ -258,14 +258,14 @@ export default function ResourceUploadForm() {
           onKeyDown={handleAddTag}
           placeholder="e.g. algorithms, trees, cheatsheet"
           disabled={isLoading}
-          className="w-full rounded-2xl border border-zinc-200 bg-zinc-50/50 py-2.5 px-4 text-xs text-zinc-900 focus:border-primary focus:bg-white focus:outline-none dark:border-zinc-800 dark:bg-zinc-900 dark:text-white transition-all"
+          className="w-full rounded-2xl border border-zinc-200 bg-zinc-50/50 py-2.5 px-4 text-xs text-zinc-900 focus:border-primary focus:bg-white focus:outline-none dark:border-zinc-800 dark:text-white transition-all"
         />
         
         {/* Render added tags */}
         {tags.length > 0 && (
           <div className="flex flex-wrap gap-1.5 pt-1.5">
             {tags.map((t) => (
-              <span key={t} className="inline-flex items-center gap-1 bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-200 text-xs px-2 py-0.5 rounded-full">
+              <span key={t} className="inline-flex items-center gap-1 bg-zinc-100 text-zinc-700 zinc-800 dark:text-zinc-200 text-xs px-2 py-0.5 rounded-full">
                 {t}
                 <button
                   type="button"

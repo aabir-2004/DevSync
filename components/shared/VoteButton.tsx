@@ -63,8 +63,8 @@ export default function VoteButton({
   };
 
   const containerClasses = vertical
-    ? "flex flex-col items-center gap-1.5 p-1 rounded-xl bg-zinc-50 border border-zinc-200/60 dark:bg-zinc-900/40 dark:border-zinc-800"
-    : "flex items-center gap-2 px-2.5 py-1 rounded-full bg-zinc-50 border border-zinc-200/60 dark:bg-zinc-900/40 dark:border-zinc-800";
+    ? "flex flex-col items-center gap-1.5 p-1 rounded-xl bg-zinc-50 border border-zinc-200/60 dark:border-zinc-800"
+    : "flex items-center gap-2 px-2.5 py-1 rounded-full bg-zinc-50 border border-zinc-200/60 dark:border-zinc-800";
 
   return (
     <div className={containerClasses}>
@@ -73,7 +73,7 @@ export default function VoteButton({
         onClick={() => handleVote("up")}
         className={`flex h-7 w-7 items-center justify-center rounded-full transition-all duration-150 ${
           userVote === "up"
-            ? "bg-primary-50 text-primary dark:bg-primary-950/40 scale-105"
+            ? "bg-primary-50 text-primary primary-950/40 scale-105"
             : "text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700 dark:hover:bg-zinc-800 dark:hover:text-zinc-200"
         }`}
       >
@@ -98,7 +98,7 @@ export default function VoteButton({
         onClick={() => handleVote("down")}
         className={`flex h-7 w-7 items-center justify-center rounded-full transition-all duration-150 ${
           userVote === "down"
-            ? "bg-blue-50 text-blue-600 dark:bg-blue-950/40 scale-105"
+            ? "bg-blue-50 text-blue-600 blue-950/40 scale-105"
             : "text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700 dark:hover:bg-zinc-800 dark:hover:text-zinc-200"
         }`}
       >

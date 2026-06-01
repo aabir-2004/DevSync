@@ -37,18 +37,8 @@ export async function updateSession(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
 
   // ROUTE PROTECTION LOGIC
-  const isProtectedPath =
-    pathname.startsWith("/profile/edit") ||
-    pathname.startsWith("/resources/upload") ||
-    pathname.startsWith("/blogs/write") ||
-    pathname.startsWith("/forums/new") ||
-    pathname.startsWith("/admin");
-
-  const isAuthPath =
-    pathname.startsWith("/auth/login") ||
-    pathname.startsWith("/auth/signup") ||
-    pathname.startsWith("/auth/forgot") ||
-    pathname.startsWith("/auth/reset");
+  const isAuthPath = pathname.startsWith("/auth");
+  const isProtectedPath = !isAuthPath;
 
   if (isProtectedPath && !user) {
     const url = request.nextUrl.clone();
@@ -58,6 +48,7 @@ export async function updateSession(request: NextRequest) {
   }
 
   if (isAuthPath && user) {
+    // If user is already logged in, redirect them to the home page
     return NextResponse.redirect(new URL("/", request.url));
   }
 
