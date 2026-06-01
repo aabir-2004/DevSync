@@ -1,0 +1,97 @@
+@import "tailwindcss";
+
+@theme {
+  /* Fonts */
+  --font-sans: var(--font-inter), sans-serif;
+  --font-mono: var(--font-mono), monospace;
+
+  /* DevSync Primary Color System: Orange */
+  --color-primary: #E8590C;
+  --color-primary-50: #FFF4E6;
+  --color-primary-100: #FFE8CC;
+  --color-primary-200: #FFD8A8;
+  --color-primary-300: #FFC078;
+  --color-primary-400: #FFA94D;
+  --color-primary-500: #FF922B;
+  --color-primary-600: #FD7E14;
+  --color-primary-700: #F76707;
+  --color-primary-800: #E8590C;
+  --color-primary-900: #D9480F;
+  --color-primary-950: #A63C06;
+
+  /* Neutral scale - Zinc */
+  --color-zinc-50: #FAFAFA;
+  --color-zinc-100: #F4F4F5;
+  --color-zinc-200: #E4E4E7;
+  --color-zinc-300: #D4D4D8;
+  --color-zinc-400: #A1A1AA;
+  --color-zinc-500: #71717A;
+  --color-zinc-600: #52525B;
+  --color-zinc-700: #3F3F46;
+  --color-zinc-800: #27272A;
+  --color-zinc-900: #18181B;
+  --color-zinc-950: #09090B;
+
+  /* Custom shadows and micro-interactions */
+  --shadow-premium: 0 4px 20px -2px rgba(0, 0, 0, 0.05), 0 2px 8px -1px rgba(0, 0, 0, 0.03);
+  --shadow-premium-dark: 0 4px 20px -2px rgba(0, 0, 0, 0.3), 0 2px 8px -1px rgba(0, 0, 0, 0.2);
+}
+
+:root {
+  --background: #FFFFFF;
+  --foreground: #09090B;
+  
+  --card-bg: #FFFFFF;
+  --card-border: #E4E4E7;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #09090B;
+    --foreground: #FAFAFA;
+    
+    --card-bg: #18181B;
+    --card-border: #27272A;
+  }
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+}
+
+/* Premium micro-interactions and animations */
+.premium-card {
+  background-color: var(--card-bg);
+  border: 1px solid var(--card-border);
+  box-shadow: var(--shadow-premium);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.dark .premium-card {
+  box-shadow: var(--shadow-premium-dark);
+}
+
+.premium-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--color-primary-400);
+  box-shadow: 0 10px 25px -5px rgba(232, 89, 12, 0.1), 0 4px 10px -2px rgba(232, 89, 12, 0.05);
+}
+
+.dark .premium-card:hover {
+  box-shadow: 0 10px 25px -5px rgba(232, 89, 12, 0.2), 0 4px 10px -2px rgba(232, 89, 12, 0.1);
+}
+
+.glass-nav {
+  background-color: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(228, 228, 231, 0.6);
+}
+
+.dark .glass-nav {
+  background-color: rgba(9, 9, 11, 0.75);
+  border-bottom: 1px solid rgba(39, 39, 42, 0.6);
+}
+

@@ -1,0 +1,1752 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+  <metadata>
+    <title>DecSync Community Platform</title>
+    <subtitle>System Architecture and Design Document</subtitle>
+    <version>1.0</version>
+    <status>Draft</status>
+  </metadata>
+
+  <!-- ============================================================ -->
+  <!--  SECTION 1 — INTRODUCTION                                    -->
+  <!-- ============================================================ -->
+
+  <section id="1" title="Introduction">
+
+    <subsection id="1.1" title="Purpose">
+      <p>
+        This document describes the complete system architecture, design
+        decisions, and implementation plan for the DecSync Community Platform
+        — a collaborative learning space built specifically for members of the
+        DecSync batch. The platform enables resource sharing, technical
+        blogging, community discussions, and DSA practice in a single unified
+        interface.
+      </p>
+    </subsection>
+
+    <subsection id="1.2" title="Design Principles">
+      <principle id="1">
+        <name>Zero cost during development</name>
+        <description>
+          Every tool, service, and platform used must have a free tier that
+          comfortably supports a community of 50 to 300 students without
+          requiring a credit card or trial account.
+        </description>
+      </principle>
+      <principle id="2">
+        <name>Simplicity first</name>
+        <description>
+          The architecture starts as a well-organised monolith. Complexity is
+          introduced only when genuinely needed.
+        </description>
+      </principle>
+      <principle id="3">
+        <name>No self-hosted file storage</name>
+        <description>
+          All files such as PDFs, notes, and videos are stored on
+          user-managed Google Drive or YouTube. The platform stores only
+          metadata and URLs.
+        </description>
+      </principle>
+      <principle id="4">
+        <name>Incrementally extensible</name>
+        <description>
+          Features are built in phases. The schema and API are designed so
+          that later phases plug in cleanly without breaking existing work.
+        </description>
+      </principle>
+    </subsection>
+
+    <subsection id="1.3" title="Scope">
+      <p>The platform covers the following functional areas:</p>
+      <scope_items>
+        <item>User registration, login, and profile management</item>
+        <item>Resource upload and discovery</item>
+        <item>Blog writing and reading</item>
+        <item>Community forum discussions with nested comments</item>
+        <item>Reputation and achievement system</item>
+        <item>Moderation and admin tools</item>
+        <item>Announcements board</item>
+        <item>DSA problem lists with external links</item>
+        <item>Global search across all content</item>
+      </scope_items>
+    </subsection>
+
+  </section>
+
+  <!-- ============================================================ -->
+  <!--  SECTION 2 — TECHNOLOGY STACK                                -->
+  <!-- ============================================================ -->
+
+  <section id="2" title="Technology Stack">
+
+    <p>
+      Every item in this stack is free to use for a project of this scale.
+      No credit card, no trial, no hidden limits that would affect a
+      community of 50 to 200 students.
+    </p>
+
+    <stack_table>
+      <entry>
+        <layer>Frontend</layer>
+        <technology>Next.js with App Router</technology>
+        <reason>SSR, file-based routing, API routes built in</reason>
+      </entry>
+      <entry>
+        <layer>Styling</layer>
+        <technology>Tailwind CSS</technology>
+        <reason>Utility-first, no design system cost</reason>
+      </entry>
+      <entry>
+        <layer>Database</layer>
+        <technology>Supabase PostgreSQL</technology>
+        <reason>500MB free, built-in auth, realtime, and RLS</reason>
+      </entry>
+      <entry>
+        <layer>Authentication</layer>
+        <technology>Supabase Auth</technology>
+        <reason>Email and password, email verification, JWT sessions</reason>
+      </entry>
+      <entry>
+        <layer>API Layer</layer>
+        <technology>Next.js API Routes</technology>
+        <reason>Serverless, co-located with frontend</reason>
+      </entry>
+      <entry>
+        <layer>Rich Text Editor</layer>
+        <technology>TipTap</technology>
+        <reason>Open source, Markdown and code block support</reason>
+      </entry>
+      <entry>
+        <layer>Syntax Highlighting</layer>
+        <technology>Shiki</technology>
+        <reason>Free, server-side, accurate highlighting</reason>
+      </entry>
+      <entry>
+        <layer>Search</layer>
+        <technology>PostgreSQL Full-Text Search</technology>
+        <reason>Built into Supabase, no extra infrastructure needed</reason>
+      </entry>
+      <entry>
+        <layer>Real-time</layer>
+        <technology>Supabase Realtime</technology>
+        <reason>WebSocket-based, free tier supports 200 connections</reason>
+      </entry>
+      <entry>
+        <layer>Hosting</layer>
+        <technology>Vercel Hobby Plan</technology>
+        <reason>100GB bandwidth per month, no credit card needed</reason>
+      </entry>
+      <entry>
+        <layer>Email</layer>
+        <technology>Supabase Built-in SMTP</technology>
+        <reason>3 emails per hour, sufficient for a small community</reason>
+      </entry>
+      <entry>
+        <layer>External File Storage</layer>
+        <technology>Google Drive and YouTube</technology>
+        <reason>User-managed, platform stores links only</reason>
+      </entry>
+    </stack_table>
+
+  </section>
+
+  <!-- ============================================================ -->
+  <!--  SECTION 3 — SYSTEM ARCHITECTURE                             -->
+  <!-- ============================================================ -->
+
+  <section id="3" title="System Architecture">
+
+    <subsection id="3.1" title="Architecture Style">
+      <p>
+        The platform uses a monolithic Next.js application with a clear
+        internal separation of concerns. The frontend and the backend API
+        routes live in the same codebase and are deployed together on Vercel.
+        The database and authentication are fully managed by Supabase. This
+        avoids the operational overhead of running and maintaining separate
+        services while still keeping the codebase organised enough to extract
+        services later if the platform grows significantly.
+      </p>
+    </subsection>
+
+    <subsection id="3.2" title="High-Level Architecture Diagram">
+      <diagram>
+        <![CDATA[
++------------------------------------------------------------------+
+|                        USER'S BROWSER                            |
+|                                                                  |
+|   Next.js Pages rendered here after initial server response      |
+|   React components handle interactivity                          |
+|   Supabase JS SDK manages session tokens in cookies              |
++-----------------------------+------------------------------------+
+                              |
+                         HTTPS Requests
+                              |
++-----------------------------v------------------------------------+
+|                     VERCEL (Free Tier)                           |
+|                                                                  |
+|   +------------------------+   +------------------------------+  |
+|   |   Next.js Frontend     |   |   Next.js API Routes         |  |
+|   |                        |   |                              |  |
+|   |   /                    |   |   /api/auth/*                |  |
+|   |   /resources           |   |   /api/resources/*           |  |
+|   |   /blogs               |   |   /api/blogs/*               |  |
+|   |   /forums              |   |   /api/forums/*              |  |
+|   |   /profile/[id]        |   |   /api/users/*               |  |
+|   |   /search              |   |   /api/search                |  |
+|   |   /announcements       |   |   /api/admin/*               |  |
+|   |   /dsa                 |   |   /api/notifications/*       |  |
+|   |   /auth/*              |   |                              |  |
+|   |   /admin               |   |                              |  |
+|   +------------------------+   +---------------+--------------+  |
++------------------------------------------------------------------+
+                                                 |
+                              Supabase JS Client (secure)
+                                                 |
++------------------------------------------------v-----------------+
+|                    SUPABASE (Free Tier)                          |
+|                                                                  |
+|   +-------------------+  +----------------+  +--------------+   |
+|   |   Auth            |  |   PostgreSQL   |  |   Realtime   |   |
+|   |                   |  |                |  |              |   |
+|   |   Email/password  |  |   All tables   |  |   Notif bell |   |
+|   |   JWT sessions    |  |   Full-text    |  |   Live count |   |
+|   |   Email verify    |  |   search       |  |   updates    |   |
+|   |   Password reset  |  |   RLS policies |  |              |   |
+|   +-------------------+  +----------------+  +--------------+   |
++------------------------------------------------------------------+
+                              |
+                     External URL references only
+                              |
++-----------------------------v------------------------------------+
+|              EXTERNAL STORAGE (User-Managed, Free)               |
+|                                                                  |
+|   Google Drive     YouTube     GitHub     Any public URL         |
+|                                                                  |
+|   Platform stores only the link. Files never touch our servers.  |
++------------------------------------------------------------------+
+        ]]>
+      </diagram>
+    </subsection>
+
+    <subsection id="3.3" title="Request Lifecycle">
+      <steps>
+        <step order="1">User opens a page, for example /resources</step>
+        <step order="2">Next.js server component runs on Vercel serverless function</step>
+        <step order="3">Server component calls Supabase directly using the service key</step>
+        <step order="4">Supabase executes the query against PostgreSQL and applies RLS policies</step>
+        <step order="5">Data is returned to the server component, which renders HTML</step>
+        <step order="6">HTML is sent to the browser and the page appears immediately via SSR</step>
+        <step order="7">React hydrates the page, making it interactive</step>
+        <step order="8">Subsequent interactions such as votes and comments hit /api/* routes client-side</step>
+        <step order="9">API routes validate the JWT from the user's cookie</step>
+        <step order="10">Validated requests are executed against Supabase and results returned</step>
+      </steps>
+    </subsection>
+
+  </section>
+
+  <!-- ============================================================ -->
+  <!--  SECTION 4 — AUTHENTICATION SYSTEM                           -->
+  <!-- ============================================================ -->
+
+  <section id="4" title="Authentication System">
+
+    <subsection id="4.1" title="Overview">
+      <p>
+        Authentication is handled entirely by Supabase Auth using email and
+        password. There is no Google Sign-In or any other OAuth provider.
+        Users register with their name, email, password, and batch. Email
+        verification is required before accessing the platform.
+      </p>
+    </subsection>
+
+    <subsection id="4.2" title="Auth Pages">
+      <pages>
+        <page path="/auth/signup">Registration form accepting name, email, password, and batch</page>
+        <page path="/auth/login">Login form accepting email and password</page>
+        <page path="/auth/verify">Confirmation screen shown after signup</page>
+        <page path="/auth/forgot">Form to request a password reset email</page>
+        <page path="/auth/reset">New password form reached via emailed link</page>
+      </pages>
+    </subsection>
+
+    <subsection id="4.3" title="Sign Up Flow">
+      <diagram>
+        <![CDATA[
++------------------+
+|   Signup Form    |
+|                  |
+|   Name           |
+|   Email          |
+|   Password       |
+|   Batch          |
++--------+---------+
+         |
+         | Submit
+         v
++--------+---------+
+|  Frontend        |
+|  Validation      |  <-- Zod schema: required fields, min 8 char password,
+|  (client-side)   |      valid email format
++--------+---------+
+         |
+         | POST /api/auth/signup
+         v
++--------+---------+
+|  API Route       |
+|  Validation      |  <-- Server-side Zod validation (never trust client only)
++--------+---------+
+         |
+         v
++--------+-----------------------------+
+|  supabase.auth.signUp({             |
+|    email,                           |
+|    password,                        |
+|    options: {                       |
+|      data: { name, batch }          |
+|    }                                |
+|  })                                 |
++--------+-----------------------------+
+         |
+         | Supabase creates auth.users record
+         | Supabase sends verification email automatically
+         | DB trigger fires and inserts row into public.users
+         v
++--------+---------+
+|  Response to     |
+|  Browser:        |
+|  "Check your     |
+|  email to verify |
+|  your account"   |
++--------+---------+
+         |
+         | User clicks verification link in email
+         v
++--------+---------+
+|  Supabase marks  |
+|  email verified  |
+|  Session begins  |
+|  Redirect to /   |
++------------------+
+        ]]>
+      </diagram>
+    </subsection>
+
+    <subsection id="4.4" title="Login Flow">
+      <diagram>
+        <![CDATA[
++------------------+
+|   Login Form     |
+|                  |
+|   Email          |
+|   Password       |
++--------+---------+
+         |
+         v
++--------+---------------------------------------+
+|  supabase.auth.signInWithPassword({            |
+|    email, password                             |
+|  })                                            |
++--------+---------------------------------------+
+         |
+         |  Success                     Failure
+         +-------------------+    +-----+-----------+
+         |                   |    |                 |
+         v                   |    v                 |
++--------+---------+         |  +---------+         |
+|  JWT access      |         |  | Show    |         |
+|  token + refresh |         |  | "Invalid|         |
+|  token stored in |         |  | email or|         |
+|  httpOnly cookie |         |  | password|         |
++--------+---------+         |  +---------+         |
+         |                   |                      |
+         v                   |                      |
++--------+---------+         |                      |
+|  Redirect to /   |         |                      |
+|  or the page     |         +----------------------+
+|  they came from  |
++------------------+
+        ]]>
+      </diagram>
+    </subsection>
+
+    <subsection id="4.5" title="Password Reset Flow">
+      <diagram>
+        <![CDATA[
+User clicks "Forgot Password"
+         |
+         v
++--------+---------+
+|  Enter Email     |
++--------+---------+
+         |
+         v
++--------+----------------------------------------+
+|  supabase.auth.resetPasswordForEmail(email,     |
+|    { redirectTo: '/auth/reset' })               |
++-------------------------------------------------+
+         |
+         | Supabase sends reset link to email
+         v
+User clicks link in email and lands on /auth/reset
+         |
+         v
++--------+---------+
+|  Enter new       |
+|  password        |
++--------+---------+
+         |
+         v
++--------+---------------------------------------+
+|  supabase.auth.updateUser({ password: newPwd })|
++-------------------------------------------------+
+         |
+         v
+    Redirect to /auth/login with success message
+        ]]>
+      </diagram>
+    </subsection>
+
+    <subsection id="4.6" title="Session Management">
+      <p>
+        The @supabase/ssr package is used to correctly handle Supabase
+        sessions in Next.js. Tokens are stored in cookies and are available
+        in both server components and client components. The access token
+        expires every hour and is silently refreshed using the refresh token,
+        which is valid for 7 days.
+      </p>
+      <code language="typescript">
+        <![CDATA[
+// Server Component
+createServerClient(url, key, { cookies })
+supabase.auth.getUser()
+
+// Client Component
+createBrowserClient(url, key)
+supabase.auth.getSession()
+        ]]>
+      </code>
+    </subsection>
+
+    <subsection id="4.7" title="Route Protection Middleware">
+      <p>middleware.ts runs before every request on Vercel.</p>
+      <protected_routes>
+        <route>/profile/edit</route>
+        <route>/resources/upload</route>
+        <route>/blogs/write</route>
+        <route>/forums/new</route>
+        <route>/admin/*</route>
+      </protected_routes>
+      <logic>
+        <rule>If no session and route is protected, redirect to /auth/login with next parameter</rule>
+        <rule>If session exists but role is not admin and route starts with /admin, redirect to /403</rule>
+        <rule>Otherwise allow the request through</rule>
+      </logic>
+    </subsection>
+
+    <subsection id="4.8" title="Database Trigger for New Users">
+      <p>
+        When Supabase creates a new auth user, this trigger automatically
+        creates the corresponding public profile row in public.users.
+      </p>
+      <code language="sql">
+        <![CDATA[
+CREATE OR REPLACE FUNCTION handle_new_user()
+RETURNS TRIGGER AS $$
+BEGIN
+  INSERT INTO public.users (id, email, name, batch)
+  VALUES (
+    NEW.id,
+    NEW.email,
+    NEW.raw_user_meta_data->>'name',
+    NEW.raw_user_meta_data->>'batch'
+  );
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE PROCEDURE handle_new_user();
+        ]]>
+      </code>
+    </subsection>
+
+  </section>
+
+  <!-- ============================================================ -->
+  <!--  SECTION 5 — DATABASE SCHEMA                                 -->
+  <!-- ============================================================ -->
+
+  <section id="5" title="Database Schema">
+
+    <p>
+      All tables live in Supabase's PostgreSQL instance. Row-Level Security
+      is enabled on every table. Foreign key relationships are enforced at
+      the database level.
+    </p>
+
+    <subsection id="5.1" title="Entity Relationship Overview">
+      <diagram>
+        <![CDATA[
+users
+  |
+  +--< resources          (one user uploads many resources)
+  |
+  +--< blog_posts         (one user writes many blogs)
+  |
+  +--< forum_threads      (one user creates many threads)
+  |
+  +--< forum_comments     (one user writes many comments)
+  |       |
+  |       +--< forum_comments   (self-referencing for nesting)
+  |
+  +--< votes              (one user casts many votes)
+  |
+  +--< notifications      (one user receives many notifications)
+  |
+  +--< achievements       (one user earns many achievements)
+  |
+  +--< reports            (one user files many reports)
+
+forum_threads
+  |
+  +--< forum_comments     (one thread has many comments)
+
+announcements             (standalone, only admins and mods create)
+dsa_problems              (standalone, curated by admins)
+dsa_progress              (user and problem join table, tracks completion)
+        ]]>
+      </diagram>
+    </subsection>
+
+    <subsection id="5.2" title="Table Definitions">
+
+      <table name="users">
+        <columns>
+          <column><name>id</name><type>UUID</type><constraints>PRIMARY KEY, sourced from auth.users</constraints></column>
+          <column><name>email</name><type>VARCHAR</type><constraints>UNIQUE NOT NULL</constraints></column>
+          <column><name>name</name><type>VARCHAR</type><constraints>NOT NULL</constraints></column>
+          <column><name>batch</name><type>VARCHAR</type><constraints>e.g. DecSync 2024</constraints></column>
+          <column><name>bio</name><type>TEXT</type><constraints>nullable</constraints></column>
+          <column><name>avatar_url</name><type>TEXT</type><constraints>external URL only</constraints></column>
+          <column><name>role</name><type>VARCHAR</type><constraints>DEFAULT student, CHECK IN (student, moderator, admin, banned)</constraints></column>
+          <column><name>reputation</name><type>INTEGER</type><constraints>DEFAULT 0</constraints></column>
+          <column><name>created_at</name><type>TIMESTAMPTZ</type><constraints>DEFAULT now()</constraints></column>
+        </columns>
+      </table>
+
+      <table name="resources">
+        <columns>
+          <column><name>id</name><type>UUID</type><constraints>PRIMARY KEY DEFAULT gen_random_uuid()</constraints></column>
+          <column><name>title</name><type>VARCHAR</type><constraints>NOT NULL</constraints></column>
+          <column><name>description</name><type>TEXT</type><constraints>nullable</constraints></column>
+          <column><name>author_id</name><type>UUID</type><constraints>REFERENCES users(id) ON DELETE SET NULL</constraints></column>
+          <column><name>category</name><type>VARCHAR</type><constraints>CHECK IN (notes, pdf, placement, dsa, development, system_design, interview_exp, competitive, other)</constraints></column>
+          <column><name>semester</name><type>INTEGER</type><constraints>nullable</constraints></column>
+          <column><name>subject</name><type>VARCHAR</type><constraints>nullable</constraints></column>
+          <column><name>tags</name><type>TEXT[]</type><constraints>DEFAULT empty array</constraints></column>
+          <column><name>external_url</name><type>TEXT</type><constraints>NOT NULL</constraints></column>
+          <column><name>thumbnail_url</name><type>TEXT</type><constraints>nullable</constraints></column>
+          <column><name>upvotes</name><type>INTEGER</type><constraints>DEFAULT 0</constraints></column>
+          <column><name>search_vector</name><type>TSVECTOR</type><constraints>auto-updated by trigger</constraints></column>
+          <column><name>created_at</name><type>TIMESTAMPTZ</type><constraints>DEFAULT now()</constraints></column>
+        </columns>
+        <indexes>
+          <index>GIN index on search_vector</index>
+          <index>GIN index on tags</index>
+        </indexes>
+      </table>
+
+      <table name="blog_posts">
+        <columns>
+          <column><name>id</name><type>UUID</type><constraints>PRIMARY KEY DEFAULT gen_random_uuid()</constraints></column>
+          <column><name>title</name><type>VARCHAR</type><constraints>NOT NULL</constraints></column>
+          <column><name>slug</name><type>VARCHAR</type><constraints>UNIQUE NOT NULL</constraints></column>
+          <column><name>author_id</name><type>UUID</type><constraints>REFERENCES users(id) ON DELETE SET NULL</constraints></column>
+          <column><name>content</name><type>TEXT</type><constraints>stored as sanitized HTML</constraints></column>
+          <column><name>excerpt</name><type>TEXT</type><constraints>nullable</constraints></column>
+          <column><name>tags</name><type>TEXT[]</type><constraints>DEFAULT empty array</constraints></column>
+          <column><name>status</name><type>VARCHAR</type><constraints>DEFAULT draft, CHECK IN (draft, published)</constraints></column>
+          <column><name>views</name><type>INTEGER</type><constraints>DEFAULT 0</constraints></column>
+          <column><name>upvotes</name><type>INTEGER</type><constraints>DEFAULT 0</constraints></column>
+          <column><name>search_vector</name><type>TSVECTOR</type><constraints>auto-updated by trigger</constraints></column>
+          <column><name>created_at</name><type>TIMESTAMPTZ</type><constraints>DEFAULT now()</constraints></column>
+          <column><name>updated_at</name><type>TIMESTAMPTZ</type><constraints>DEFAULT now()</constraints></column>
+        </columns>
+        <indexes>
+          <index>GIN index on search_vector</index>
+          <index>UNIQUE index on slug</index>
+        </indexes>
+      </table>
+
+      <table name="forum_threads">
+        <columns>
+          <column><name>id</name><type>UUID</type><constraints>PRIMARY KEY DEFAULT gen_random_uuid()</constraints></column>
+          <column><name>title</name><type>VARCHAR</type><constraints>NOT NULL</constraints></column>
+          <column><name>author_id</name><type>UUID</type><constraints>REFERENCES users(id) ON DELETE SET NULL</constraints></column>
+          <column><name>category</name><type>VARCHAR</type><constraints>CHECK IN (dsa, development, placements, projects, college, research, general)</constraints></column>
+          <column><name>body</name><type>TEXT</type><constraints>nullable</constraints></column>
+          <column><name>upvotes</name><type>INTEGER</type><constraints>DEFAULT 0</constraints></column>
+          <column><name>is_locked</name><type>BOOLEAN</type><constraints>DEFAULT FALSE</constraints></column>
+          <column><name>is_pinned</name><type>BOOLEAN</type><constraints>DEFAULT FALSE</constraints></column>
+          <column><name>views</name><type>INTEGER</type><constraints>DEFAULT 0</constraints></column>
+          <column><name>search_vector</name><type>TSVECTOR</type><constraints>auto-updated by trigger</constraints></column>
+          <column><name>created_at</name><type>TIMESTAMPTZ</type><constraints>DEFAULT now()</constraints></column>
+        </columns>
+        <indexes>
+          <index>GIN index on search_vector</index>
+        </indexes>
+      </table>
+
+      <table name="forum_comments">
+        <columns>
+          <column><name>id</name><type>UUID</type><constraints>PRIMARY KEY DEFAULT gen_random_uuid()</constraints></column>
+          <column><name>thread_id</name><type>UUID</type><constraints>REFERENCES forum_threads(id) ON DELETE CASCADE</constraints></column>
+          <column><name>parent_id</name><type>UUID</type><constraints>REFERENCES forum_comments(id) ON DELETE CASCADE, NULLABLE (null means top-level)</constraints></column>
+          <column><name>author_id</name><type>UUID</type><constraints>REFERENCES users(id) ON DELETE SET NULL</constraints></column>
+          <column><name>content</name><type>TEXT</type><constraints>NOT NULL</constraints></column>
+          <column><name>upvotes</name><type>INTEGER</type><constraints>DEFAULT 0</constraints></column>
+          <column><name>is_deleted</name><type>BOOLEAN</type><constraints>DEFAULT FALSE</constraints></column>
+          <column><name>created_at</name><type>TIMESTAMPTZ</type><constraints>DEFAULT now()</constraints></column>
+        </columns>
+        <indexes>
+          <index>Index on thread_id</index>
+          <index>Index on parent_id</index>
+        </indexes>
+      </table>
+
+      <table name="votes">
+        <columns>
+          <column><name>id</name><type>UUID</type><constraints>PRIMARY KEY DEFAULT gen_random_uuid()</constraints></column>
+          <column><name>user_id</name><type>UUID</type><constraints>REFERENCES users(id) ON DELETE CASCADE</constraints></column>
+          <column><name>target_id</name><type>UUID</type><constraints>NOT NULL</constraints></column>
+          <column><name>target_type</name><type>VARCHAR</type><constraints>CHECK IN (resource, blog, thread, comment)</constraints></column>
+          <column><name>value</name><type>INTEGER</type><constraints>CHECK IN (1, -1)</constraints></column>
+          <column><name>created_at</name><type>TIMESTAMPTZ</type><constraints>DEFAULT now()</constraints></column>
+        </columns>
+        <constraints>
+          <unique_constraint>UNIQUE on (user_id, target_id, target_type) — one vote per user per item</unique_constraint>
+        </constraints>
+      </table>
+
+      <table name="notifications">
+        <columns>
+          <column><name>id</name><type>UUID</type><constraints>PRIMARY KEY DEFAULT gen_random_uuid()</constraints></column>
+          <column><name>user_id</name><type>UUID</type><constraints>REFERENCES users(id) ON DELETE CASCADE</constraints></column>
+          <column><name>type</name><type>VARCHAR</type><constraints>CHECK IN (reply, mention, new_resource, announcement)</constraints></column>
+          <column><name>message</name><type>TEXT</type><constraints>NOT NULL</constraints></column>
+          <column><name>link</name><type>TEXT</type><constraints>nullable</constraints></column>
+          <column><name>is_read</name><type>BOOLEAN</type><constraints>DEFAULT FALSE</constraints></column>
+          <column><name>created_at</name><type>TIMESTAMPTZ</type><constraints>DEFAULT now()</constraints></column>
+        </columns>
+        <indexes>
+          <index>Composite index on (user_id, is_read)</index>
+        </indexes>
+      </table>
+
+      <table name="achievements">
+        <columns>
+          <column><name>id</name><type>UUID</type><constraints>PRIMARY KEY DEFAULT gen_random_uuid()</constraints></column>
+          <column><name>user_id</name><type>UUID</type><constraints>REFERENCES users(id) ON DELETE CASCADE</constraints></column>
+          <column><name>badge_key</name><type>VARCHAR</type><constraints>e.g. first_blog, ten_answers, streak_30</constraints></column>
+          <column><name>earned_at</name><type>TIMESTAMPTZ</type><constraints>DEFAULT now()</constraints></column>
+        </columns>
+        <constraints>
+          <unique_constraint>UNIQUE on (user_id, badge_key) — each badge earned only once</unique_constraint>
+        </constraints>
+      </table>
+
+      <table name="reports">
+        <columns>
+          <column><name>id</name><type>UUID</type><constraints>PRIMARY KEY DEFAULT gen_random_uuid()</constraints></column>
+          <column><name>reporter_id</name><type>UUID</type><constraints>REFERENCES users(id) ON DELETE SET NULL</constraints></column>
+          <column><name>target_id</name><type>UUID</type><constraints>NOT NULL</constraints></column>
+          <column><name>target_type</name><type>VARCHAR</type><constraints>CHECK IN (blog, thread, comment, resource)</constraints></column>
+          <column><name>reason</name><type>TEXT</type><constraints>NOT NULL</constraints></column>
+          <column><name>status</name><type>VARCHAR</type><constraints>DEFAULT pending, CHECK IN (pending, resolved, dismissed)</constraints></column>
+          <column><name>created_at</name><type>TIMESTAMPTZ</type><constraints>DEFAULT now()</constraints></column>
+        </columns>
+      </table>
+
+      <table name="announcements">
+        <columns>
+          <column><name>id</name><type>UUID</type><constraints>PRIMARY KEY DEFAULT gen_random_uuid()</constraints></column>
+          <column><name>author_id</name><type>UUID</type><constraints>REFERENCES users(id) ON DELETE SET NULL</constraints></column>
+          <column><name>title</name><type>VARCHAR</type><constraints>NOT NULL</constraints></column>
+          <column><name>body</name><type>TEXT</type><constraints>NOT NULL</constraints></column>
+          <column><name>type</name><type>VARCHAR</type><constraints>CHECK IN (placement, internship, hackathon, event, deadline, general)</constraints></column>
+          <column><name>expires_at</name><type>TIMESTAMPTZ</type><constraints>nullable</constraints></column>
+          <column><name>created_at</name><type>TIMESTAMPTZ</type><constraints>DEFAULT now()</constraints></column>
+        </columns>
+      </table>
+
+      <table name="dsa_problems">
+        <columns>
+          <column><name>id</name><type>UUID</type><constraints>PRIMARY KEY DEFAULT gen_random_uuid()</constraints></column>
+          <column><name>title</name><type>VARCHAR</type><constraints>NOT NULL</constraints></column>
+          <column><name>topic</name><type>VARCHAR</type><constraints>e.g. Arrays, Graphs, DP</constraints></column>
+          <column><name>difficulty</name><type>VARCHAR</type><constraints>CHECK IN (easy, medium, hard)</constraints></column>
+          <column><name>platform</name><type>VARCHAR</type><constraints>CHECK IN (leetcode, codeforces, codechef, gfg, other)</constraints></column>
+          <column><name>external_url</name><type>TEXT</type><constraints>NOT NULL</constraints></column>
+          <column><name>week_number</name><type>INTEGER</type><constraints>nullable, for weekly challenge grouping</constraints></column>
+          <column><name>is_weekly</name><type>BOOLEAN</type><constraints>DEFAULT FALSE</constraints></column>
+          <column><name>created_at</name><type>TIMESTAMPTZ</type><constraints>DEFAULT now()</constraints></column>
+        </columns>
+      </table>
+
+      <table name="dsa_progress">
+        <columns>
+          <column><name>id</name><type>UUID</type><constraints>PRIMARY KEY DEFAULT gen_random_uuid()</constraints></column>
+          <column><name>user_id</name><type>UUID</type><constraints>REFERENCES users(id) ON DELETE CASCADE</constraints></column>
+          <column><name>problem_id</name><type>UUID</type><constraints>REFERENCES dsa_problems(id) ON DELETE CASCADE</constraints></column>
+          <column><name>status</name><type>VARCHAR</type><constraints>CHECK IN (attempted, solved)</constraints></column>
+          <column><name>solved_at</name><type>TIMESTAMPTZ</type><constraints>nullable</constraints></column>
+        </columns>
+        <constraints>
+          <unique_constraint>UNIQUE on (user_id, problem_id)</unique_constraint>
+        </constraints>
+      </table>
+
+    </subsection>
+
+  </section>
+
+  <!-- ============================================================ -->
+  <!--  SECTION 6 — API DESIGN                                      -->
+  <!-- ============================================================ -->
+
+  <section id="6" title="API Design">
+
+    <p>
+      All API routes live under /api/ in the Next.js project. Every route
+      validates the incoming request body using Zod. Routes that modify data
+      require a valid session JWT extracted from the cookie by the Supabase
+      SSR client.
+    </p>
+
+    <subsection id="6.1" title="Response Format">
+      <code language="json">
+        <![CDATA[
+Success:
+{
+  "success": true,
+  "data": { ... }
+}
+
+Error:
+{
+  "success": false,
+  "error": {
+    "code": "UNAUTHORIZED",
+    "message": "You must be logged in to do this."
+  }
+}
+        ]]>
+      </code>
+    </subsection>
+
+    <subsection id="6.2" title="Auth Routes">
+      <routes>
+        <route>
+          <method>POST</method><path>/api/auth/signup</path>
+          <body>name, email, password, batch</body>
+          <response>message: Verification email sent</response>
+          <auth>none</auth>
+        </route>
+        <route>
+          <method>POST</method><path>/api/auth/login</path>
+          <body>email, password</body>
+          <response>user object, sets session cookie</response>
+          <auth>none</auth>
+        </route>
+        <route>
+          <method>POST</method><path>/api/auth/logout</path>
+          <response>success true, clears session cookie</response>
+          <auth>required</auth>
+        </route>
+        <route>
+          <method>POST</method><path>/api/auth/forgot</path>
+          <body>email</body>
+          <response>message: Reset email sent if account exists</response>
+          <auth>none</auth>
+        </route>
+        <route>
+          <method>POST</method><path>/api/auth/reset</path>
+          <body>password</body>
+          <response>message: Password updated</response>
+          <auth>reset session from email link</auth>
+        </route>
+        <route>
+          <method>GET</method><path>/api/auth/me</path>
+          <response>user object with id, name, email, role, reputation</response>
+          <auth>required</auth>
+        </route>
+      </routes>
+    </subsection>
+
+    <subsection id="6.3" title="Resource Routes">
+      <routes>
+        <route>
+          <method>GET</method><path>/api/resources</path>
+          <query_params>category, semester, subject, tags, sort (newest or popular), page, limit</query_params>
+          <response>paginated resource list with total count</response>
+          <auth>none</auth>
+        </route>
+        <route>
+          <method>POST</method><path>/api/resources</path>
+          <body>title, description, category, semester, subject, tags, external_url, thumbnail_url</body>
+          <response>newly created resource</response>
+          <auth>required</auth>
+        </route>
+        <route>
+          <method>GET</method><path>/api/resources/:id</path>
+          <response>resource with author details</response>
+          <auth>none</auth>
+        </route>
+        <route>
+          <method>PUT</method><path>/api/resources/:id</path>
+          <body>title, description, tags and other editable fields</body>
+          <response>updated resource</response>
+          <auth>owner or admin</auth>
+        </route>
+        <route>
+          <method>DELETE</method><path>/api/resources/:id</path>
+          <response>success true</response>
+          <auth>owner or admin</auth>
+        </route>
+        <route>
+          <method>POST</method><path>/api/resources/:id/vote</path>
+          <body>value: 1 or -1</body>
+          <response>new vote count</response>
+          <auth>required</auth>
+        </route>
+      </routes>
+    </subsection>
+
+    <subsection id="6.4" title="Blog Routes">
+      <routes>
+        <route>
+          <method>GET</method><path>/api/blogs</path>
+          <query_params>tags, author, status, sort, page, limit</query_params>
+          <response>paginated blog list</response>
+          <auth>none for published, required for own drafts</auth>
+        </route>
+        <route>
+          <method>POST</method><path>/api/blogs</path>
+          <body>title, content, excerpt, tags, status</body>
+          <response>new post with generated slug</response>
+          <auth>required</auth>
+        </route>
+        <route>
+          <method>GET</method><path>/api/blogs/:slug</path>
+          <response>post with author, increments view count</response>
+          <auth>none</auth>
+        </route>
+        <route>
+          <method>PUT</method><path>/api/blogs/:id</path>
+          <body>title, content, excerpt, tags, status</body>
+          <response>updated post</response>
+          <auth>owner only</auth>
+        </route>
+        <route>
+          <method>DELETE</method><path>/api/blogs/:id</path>
+          <response>success true</response>
+          <auth>owner or admin</auth>
+        </route>
+      </routes>
+    </subsection>
+
+    <subsection id="6.5" title="Forum Routes">
+      <routes>
+        <route>
+          <method>GET</method><path>/api/forums</path>
+          <query_params>category, sort (hot, new, top), page, limit</query_params>
+          <response>paginated thread list</response>
+          <auth>none</auth>
+        </route>
+        <route>
+          <method>POST</method><path>/api/forums</path>
+          <body>title, body, category</body>
+          <response>new thread</response>
+          <auth>required</auth>
+        </route>
+        <route>
+          <method>GET</method><path>/api/forums/:id</path>
+          <response>thread with nested comment tree, increments view count</response>
+          <auth>none</auth>
+        </route>
+        <route>
+          <method>PUT</method><path>/api/forums/:id</path>
+          <body>title, body</body>
+          <response>updated thread</response>
+          <auth>owner only, only if thread is not locked</auth>
+        </route>
+        <route>
+          <method>DELETE</method><path>/api/forums/:id</path>
+          <response>success true</response>
+          <auth>admin or moderator</auth>
+        </route>
+        <route>
+          <method>PATCH</method><path>/api/forums/:id/lock</path>
+          <body>locked: true or false</body>
+          <response>success true</response>
+          <auth>admin or moderator</auth>
+        </route>
+        <route>
+          <method>PATCH</method><path>/api/forums/:id/pin</path>
+          <body>pinned: true or false</body>
+          <response>success true</response>
+          <auth>admin or moderator</auth>
+        </route>
+        <route>
+          <method>POST</method><path>/api/forums/:id/vote</path>
+          <body>value: 1 or -1</body>
+          <response>new vote count</response>
+          <auth>required</auth>
+        </route>
+        <route>
+          <method>POST</method><path>/api/forums/:id/comments</path>
+          <body>content, parent_id (optional)</body>
+          <response>new comment</response>
+          <auth>required</auth>
+        </route>
+        <route>
+          <method>POST</method><path>/api/comments/:id/vote</path>
+          <body>value: 1 or -1</body>
+          <response>new vote count</response>
+          <auth>required</auth>
+        </route>
+        <route>
+          <method>DELETE</method><path>/api/comments/:id</path>
+          <response>success true, sets is_deleted true and replaces content with [deleted]</response>
+          <auth>owner or admin</auth>
+        </route>
+      </routes>
+    </subsection>
+
+    <subsection id="6.6" title="User Routes">
+      <routes>
+        <route>
+          <method>GET</method><path>/api/users/:id</path>
+          <response>public profile with stats and achievements</response>
+          <auth>none</auth>
+        </route>
+        <route>
+          <method>PUT</method><path>/api/users/:id</path>
+          <body>name, bio, avatar_url, batch</body>
+          <response>updated user</response>
+          <auth>self only</auth>
+        </route>
+        <route>
+          <method>GET</method><path>/api/users/:id/blogs</path>
+          <response>published blogs by user</response>
+          <auth>none</auth>
+        </route>
+        <route>
+          <method>GET</method><path>/api/users/:id/resources</path>
+          <response>resources uploaded by user</response>
+          <auth>none</auth>
+        </route>
+        <route>
+          <method>GET</method><path>/api/users/:id/threads</path>
+          <response>threads created by user</response>
+          <auth>none</auth>
+        </route>
+      </routes>
+    </subsection>
+
+    <subsection id="6.7" title="Search Route">
+      <routes>
+        <route>
+          <method>GET</method><path>/api/search</path>
+          <query_params>q (required), type (all, resource, blog, forum, user), page, limit</query_params>
+          <response>grouped results for resources, blogs, forums, and users with total count</response>
+          <auth>none</auth>
+        </route>
+      </routes>
+    </subsection>
+
+    <subsection id="6.8" title="Notification Routes">
+      <routes>
+        <route>
+          <method>GET</method><path>/api/notifications</path>
+          <response>notification list with unread count</response>
+          <auth>required</auth>
+        </route>
+        <route>
+          <method>PATCH</method><path>/api/notifications/:id/read</path>
+          <response>success true</response>
+          <auth>required</auth>
+        </route>
+        <route>
+          <method>PATCH</method><path>/api/notifications/read-all</path>
+          <response>success true</response>
+          <auth>required</auth>
+        </route>
+      </routes>
+    </subsection>
+
+    <subsection id="6.9" title="Admin Routes">
+      <routes>
+        <route>
+          <method>GET</method><path>/api/admin/reports</path>
+          <query_params>status: pending, resolved, or dismissed</query_params>
+          <response>report list</response>
+          <auth>admin or moderator</auth>
+        </route>
+        <route>
+          <method>PATCH</method><path>/api/admin/reports/:id</path>
+          <body>status: resolved or dismissed</body>
+          <response>success true</response>
+          <auth>admin or moderator</auth>
+        </route>
+        <route>
+          <method>DELETE</method><path>/api/admin/users/:id</path>
+          <response>success true, sets role to banned without deleting user</response>
+          <auth>admin only</auth>
+        </route>
+        <route>
+          <method>POST</method><path>/api/admin/announcements</path>
+          <body>title, body, type, expires_at</body>
+          <response>new announcement</response>
+          <auth>admin or moderator</auth>
+        </route>
+      </routes>
+    </subsection>
+
+  </section>
+
+  <!-- ============================================================ -->
+  <!--  SECTION 7 — FRONTEND ARCHITECTURE                           -->
+  <!-- ============================================================ -->
+
+  <section id="7" title="Frontend Architecture">
+
+    <subsection id="7.1" title="Project Structure">
+      <diagram>
+        <![CDATA[
+decsync/
+|
++-- app/                          Next.js App Router pages
+|   |
+|   +-- page.tsx                  Home / Dashboard
+|   +-- layout.tsx                Root layout (navbar, footer)
+|   |
+|   +-- auth/
+|   |   +-- signup/page.tsx
+|   |   +-- login/page.tsx
+|   |   +-- verify/page.tsx
+|   |   +-- forgot/page.tsx
+|   |   +-- reset/page.tsx
+|   |
+|   +-- resources/
+|   |   +-- page.tsx              Resource listing
+|   |   +-- upload/page.tsx       Upload form
+|   |   +-- [id]/page.tsx         Resource detail
+|   |
+|   +-- blogs/
+|   |   +-- page.tsx              Blog listing
+|   |   +-- write/page.tsx        Blog editor
+|   |   +-- [slug]/page.tsx       Blog reader
+|   |
+|   +-- forums/
+|   |   +-- page.tsx              Thread listing
+|   |   +-- new/page.tsx          Create thread
+|   |   +-- [id]/page.tsx         Thread with comments
+|   |
+|   +-- profile/
+|   |   +-- [id]/page.tsx         Public profile view
+|   |   +-- edit/page.tsx         Edit own profile
+|   |
+|   +-- search/page.tsx
+|   +-- announcements/page.tsx
+|   +-- dsa/page.tsx
+|   +-- admin/page.tsx
+|   +-- 403/page.tsx
+|
++-- api/                          API route handlers
+|   +-- auth/
+|   +-- resources/
+|   +-- blogs/
+|   +-- forums/
+|   +-- users/
+|   +-- search/
+|   +-- notifications/
+|   +-- admin/
+|
++-- components/
+|   |
+|   +-- layout/
+|   |   +-- Navbar.tsx
+|   |   +-- Sidebar.tsx
+|   |   +-- Footer.tsx
+|   |
+|   +-- auth/
+|   |   +-- SignupForm.tsx
+|   |   +-- LoginForm.tsx
+|   |   +-- ForgotForm.tsx
+|   |   +-- ResetForm.tsx
+|   |
+|   +-- resources/
+|   |   +-- ResourceCard.tsx
+|   |   +-- ResourceGrid.tsx
+|   |   +-- ResourceFilter.tsx
+|   |   +-- ResourceUploadForm.tsx
+|   |
+|   +-- blogs/
+|   |   +-- BlogCard.tsx
+|   |   +-- BlogEditor.tsx
+|   |   +-- BlogViewer.tsx
+|   |
+|   +-- forums/
+|   |   +-- ThreadCard.tsx
+|   |   +-- CommentTree.tsx
+|   |   +-- CommentItem.tsx
+|   |   +-- CommentForm.tsx
+|   |
+|   +-- profile/
+|   |   +-- ProfileHeader.tsx
+|   |   +-- AchievementBadge.tsx
+|   |   +-- ContributionStats.tsx
+|   |   +-- ReputationBadge.tsx
+|   |
+|   +-- shared/
+|       +-- VoteButton.tsx
+|       +-- SearchBar.tsx
+|       +-- FilterPanel.tsx
+|       +-- MarkdownRenderer.tsx
+|       +-- Avatar.tsx
+|       +-- Tag.tsx
+|       +-- Modal.tsx
+|       +-- Toast.tsx
+|       +-- Skeleton.tsx
+|       +-- NotificationBell.tsx
+|       +-- NotificationPanel.tsx
+|       +-- ReportButton.tsx
+|       +-- AnnouncementBanner.tsx
+|
++-- lib/
+|   +-- supabase/
+|   |   +-- server.ts
+|   |   +-- client.ts
+|   +-- validations/
+|   +-- reputation.ts
+|   +-- achievements.ts
+|   +-- search.ts
+|   +-- slugify.ts
+|
++-- middleware.ts
++-- tailwind.config.ts
++-- next.config.ts
+        ]]>
+      </diagram>
+    </subsection>
+
+    <subsection id="7.2" title="State Management Strategy">
+      <strategy name="Auth State">
+        <description>
+          Global and managed via React Context. The Supabase session is read
+          once on app load and stored in a context that all components can
+          access. This tells every component whether the user is logged in
+          and what their role is.
+        </description>
+      </strategy>
+      <strategy name="Server Data">
+        <description>
+          Managed by TanStack Query (React Query). It handles caching,
+          background refetching, pagination, and optimistic updates. Every
+          API call goes through a custom hook that wraps a React Query query
+          or mutation.
+        </description>
+        <hooks>
+          <hook>useResources(filters) — fetches paginated resource list</hook>
+          <hook>useResource(id) — fetches single resource</hook>
+          <hook>useCreateResource() — mutation for POST /api/resources</hook>
+          <hook>useVote(targetId, type) — mutation for vote endpoints</hook>
+          <hook>useBlogs(filters) — fetches paginated blog list</hook>
+          <hook>useBlog(slug) — fetches single blog post</hook>
+          <hook>useCreateBlog() — mutation for POST /api/blogs</hook>
+          <hook>useThreads(filters) — fetches paginated thread list</hook>
+          <hook>useThread(id) — fetches thread with comment tree</hook>
+          <hook>useCreateThread() — mutation for POST /api/forums</hook>
+          <hook>useCreateComment() — mutation for POST /api/forums/:id/comments</hook>
+          <hook>useNotifications() — fetches and subscribes via Supabase Realtime</hook>
+          <hook>useCurrentUser() — wraps auth context</hook>
+        </hooks>
+      </strategy>
+    </subsection>
+
+  </section>
+
+  <!-- ============================================================ -->
+  <!--  SECTION 8 — FEATURE IMPLEMENTATION DETAILS                  -->
+  <!-- ============================================================ -->
+
+  <section id="8" title="Feature Implementation Details">
+
+    <subsection id="8.1" title="Full-Text Search">
+      <p>
+        A search_vector column of type TSVECTOR is maintained on the
+        resources, blog_posts, and forum_threads tables. A database trigger
+        updates this column automatically on insert or update. A GIN index
+        on each search_vector column ensures fast query performance.
+      </p>
+      <code language="sql">
+        <![CDATA[
+CREATE OR REPLACE FUNCTION update_blog_search_vector()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.search_vector :=
+    setweight(to_tsvector('english', COALESCE(NEW.title, '')), 'A') ||
+    setweight(to_tsvector('english', COALESCE(NEW.excerpt, '')), 'B') ||
+    setweight(to_tsvector('english', COALESCE(array_to_string(NEW.tags, ' '), '')), 'C');
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER blog_search_vector_update
+  BEFORE INSERT OR UPDATE ON blog_posts
+  FOR EACH ROW EXECUTE PROCEDURE update_blog_search_vector();
+
+CREATE INDEX blog_search_idx ON blog_posts USING GIN(search_vector);
+        ]]>
+      </code>
+      <p>Global search query across all content types:</p>
+      <code language="sql">
+        <![CDATA[
+SELECT 'blog' AS type, id, title, slug AS ref
+FROM blog_posts
+WHERE search_vector @@ plainto_tsquery('english', $1)
+  AND status = 'published'
+
+UNION ALL
+
+SELECT 'resource' AS type, id, title, id::text AS ref
+FROM resources
+WHERE search_vector @@ plainto_tsquery('english', $1)
+
+UNION ALL
+
+SELECT 'forum' AS type, id, title, id::text AS ref
+FROM forum_threads
+WHERE search_vector @@ plainto_tsquery('english', $1)
+
+ORDER BY type;
+        ]]>
+      </code>
+    </subsection>
+
+    <subsection id="8.2" title="Nested Forum Comments">
+      <p>
+        Comments support two levels of nesting: a top-level comment and one
+        level of replies. The full tree is fetched in a single recursive CTE
+        query and assembled into a visual hierarchy by the CommentTree
+        component.
+      </p>
+      <code language="sql">
+        <![CDATA[
+WITH RECURSIVE comment_tree AS (
+  SELECT c.*, 0 AS depth
+  FROM forum_comments c
+  WHERE c.thread_id = $1 AND c.parent_id IS NULL
+
+  UNION ALL
+
+  SELECT c.*, ct.depth + 1 AS depth
+  FROM forum_comments c
+  JOIN comment_tree ct ON c.parent_id = ct.id
+  WHERE ct.depth < 1
+)
+SELECT * FROM comment_tree
+ORDER BY depth ASC, created_at ASC;
+        ]]>
+      </code>
+    </subsection>
+
+    <subsection id="8.3" title="Reputation System">
+      <point_table>
+        <entry><action>Publish a blog post</action><points>+15</points></entry>
+        <entry><action>Upload a resource</action><points>+10</points></entry>
+        <entry><action>Create a forum thread</action><points>+5</points></entry>
+        <entry><action>Your comment gets upvoted</action><points>+2</points></entry>
+        <entry><action>Your resource gets upvoted</action><points>+3</points></entry>
+        <entry><action>Your blog gets upvoted</action><points>+4</points></entry>
+        <entry><action>Your blog gets downvoted</action><points>-1</points></entry>
+        <entry><action>Your resource gets downvoted</action><points>-1</points></entry>
+        <entry><action>Report confirmed by admin</action><points>-10</points></entry>
+      </point_table>
+      <levels>
+        <level><range>0 to 50</range><name>Beginner</name></level>
+        <level><range>51 to 200</range><name>Contributor</name></level>
+        <level><range>201 to 500</range><name>Mentor</name></level>
+        <level><range>501 and above</range><name>Expert</name></level>
+      </levels>
+    </subsection>
+
+    <subsection id="8.4" title="Achievement System">
+      <achievements>
+        <achievement>
+          <badge_key>first_blog</badge_key>
+          <condition>User publishes their first blog post</condition>
+        </achievement>
+        <achievement>
+          <badge_key>first_resource</badge_key>
+          <condition>User uploads their first resource</condition>
+        </achievement>
+        <achievement>
+          <badge_key>first_thread</badge_key>
+          <condition>User creates their first forum thread</condition>
+        </achievement>
+        <achievement>
+          <badge_key>ten_helpful</badge_key>
+          <condition>User receives 10 upvotes on comments</condition>
+        </achievement>
+        <achievement>
+          <badge_key>streak_7</badge_key>
+          <condition>User has activity on 7 consecutive days</condition>
+        </achievement>
+        <achievement>
+          <badge_key>streak_30</badge_key>
+          <condition>User has activity on 30 consecutive days</condition>
+        </achievement>
+        <achievement>
+          <badge_key>dsa_10</badge_key>
+          <condition>User marks 10 DSA problems as solved</condition>
+        </achievement>
+        <achievement>
+          <badge_key>dsa_50</badge_key>
+          <condition>User marks 50 DSA problems as solved</condition>
+        </achievement>
+        <achievement>
+          <badge_key>top_contributor</badge_key>
+          <condition>User reaches Contributor reputation level</condition>
+        </achievement>
+        <achievement>
+          <badge_key>mentor</badge_key>
+          <condition>User reaches Mentor reputation level</condition>
+        </achievement>
+        <achievement>
+          <badge_key>expert</badge_key>
+          <condition>User reaches Expert reputation level</condition>
+        </achievement>
+      </achievements>
+    </subsection>
+
+    <subsection id="8.5" title="Notification Triggers">
+      <triggers>
+        <trigger>
+          <event>Reply to your thread</event>
+          <recipient>Thread author</recipient>
+          <message>[Name] replied to your thread</message>
+        </trigger>
+        <trigger>
+          <event>Reply to your comment</event>
+          <recipient>Comment author</recipient>
+          <message>[Name] replied to your comment</message>
+        </trigger>
+        <trigger>
+          <event>Mention in any content</event>
+          <recipient>Mentioned user</recipient>
+          <message>[Name] mentioned you in [title]</message>
+        </trigger>
+        <trigger>
+          <event>New announcement posted</event>
+          <recipient>All users</recipient>
+          <message>[Title] — new announcement</message>
+        </trigger>
+      </triggers>
+    </subsection>
+
+    <subsection id="8.6" title="Blog Editor">
+      <p>
+        The blog editor uses TipTap with the following extensions configured.
+        Content is stored as sanitized HTML. DOMPurify is applied on the
+        server before saving and on the client before rendering to prevent
+        stored XSS attacks. Slugs are generated from the blog title at
+        creation time and de-duplicated with a numeric suffix if needed.
+      </p>
+      <extensions>
+        <extension>StarterKit — bold, italic, headings, lists, blockquote, horizontal rule</extension>
+        <extension>CodeBlockLowlight — code blocks with Shiki syntax highlighting</extension>
+        <extension>Link — clickable hyperlinks</extension>
+        <extension>Placeholder — greyed-out placeholder text</extension>
+        <extension>CharacterCount — shows word and character count</extension>
+      </extensions>
+    </subsection>
+
+  </section>
+
+  <!-- ============================================================ -->
+  <!--  SECTION 9 — SECURITY DESIGN                                 -->
+  <!-- ============================================================ -->
+
+  <section id="9" title="Security Design">
+
+    <subsection id="9.1" title="Row-Level Security">
+      <p>
+        RLS is enabled on every table. Supabase evaluates these policies at
+        the database level so that even if an API route has a bug, the
+        database itself will reject unauthorised reads or writes.
+      </p>
+      <code language="sql">
+        <![CDATA[
+-- Example policies for blog_posts
+
+-- Anyone can read published posts
+CREATE POLICY "read_published"
+ON blog_posts FOR SELECT
+USING (status = 'published');
+
+-- Authors can read their own drafts
+CREATE POLICY "read_own_drafts"
+ON blog_posts FOR SELECT
+USING (author_id = auth.uid());
+
+-- Authors can insert their own posts
+CREATE POLICY "insert_own"
+ON blog_posts FOR INSERT
+WITH CHECK (author_id = auth.uid());
+
+-- Authors can update their own posts
+CREATE POLICY "update_own"
+ON blog_posts FOR UPDATE
+USING (author_id = auth.uid());
+
+-- Admins can do anything
+CREATE POLICY "admin_all"
+ON blog_posts FOR ALL
+USING (
+  EXISTS (
+    SELECT 1 FROM users
+    WHERE id = auth.uid() AND role = 'admin'
+  )
+);
+        ]]>
+      </code>
+    </subsection>
+
+    <subsection id="9.2" title="Input Validation">
+      <p>
+        Every API route validates its input using a Zod schema before
+        processing anything. Validation runs on the server regardless of
+        what the client sends.
+      </p>
+      <code language="typescript">
+        <![CDATA[
+const createResourceSchema = z.object({
+  title:        z.string().min(3).max(200),
+  description:  z.string().max(2000).optional(),
+  category:     z.enum(['notes','pdf','placement','dsa',
+                        'development','system_design',
+                        'interview_exp','competitive','other']),
+  semester:     z.number().int().min(1).max(8).optional(),
+  subject:      z.string().max(100).optional(),
+  tags:         z.array(z.string().max(30)).max(10).default([]),
+  external_url: z.string().url(),
+});
+        ]]>
+      </code>
+    </subsection>
+
+    <subsection id="9.3" title="Content Sanitization">
+      <p>
+        All user-generated HTML from the blog editor and forum posts is
+        sanitized using DOMPurify before being stored in the database and
+        again before being rendered in the browser. This prevents stored
+        XSS attacks regardless of what the editor produces.
+      </p>
+    </subsection>
+
+    <subsection id="9.4" title="Rate Limiting">
+      <limits>
+        <limit><route>POST /api/resources</route><cap>10 requests per minute per IP</cap></limit>
+        <limit><route>POST /api/blogs</route><cap>5 requests per minute per IP</cap></limit>
+        <limit><route>POST /api/forums</route><cap>10 requests per minute per IP</cap></limit>
+        <limit><route>POST /api/comments</route><cap>20 requests per minute per IP</cap></limit>
+      </limits>
+    </subsection>
+
+    <subsection id="9.5" title="Moderation Controls">
+      <controls>
+        <control><action>Delete any content</action><roles>Admin, Moderator</roles></control>
+        <control><action>Lock a thread</action><roles>Admin, Moderator</roles></control>
+        <control><action>Pin a thread</action><roles>Admin, Moderator</roles></control>
+        <control><action>Ban a user</action><roles>Admin only</roles></control>
+        <control><action>Dismiss a report</action><roles>Admin, Moderator</roles></control>
+        <control><action>Post an announcement</action><roles>Admin, Moderator</roles></control>
+        <control><action>Edit any user profile</action><roles>Admin only</roles></control>
+      </controls>
+    </subsection>
+
+  </section>
+
+  <!-- ============================================================ -->
+  <!--  SECTION 10 — IMPLEMENTATION PLAN                            -->
+  <!-- ============================================================ -->
+
+  <section id="10" title="Implementation Plan">
+
+    <phase id="1" title="Foundation" duration="Weeks 1 to 4">
+
+      <week id="1" title="Project Setup and Deployment Pipeline">
+        <tasks>
+          <task>Initialise Next.js project with TypeScript and App Router</task>
+          <task>Configure Tailwind CSS and base design tokens</task>
+          <task>Set up Supabase project including database, auth, and RLS</task>
+          <task>Create all database tables and triggers from the schema</task>
+          <task>Connect Next.js to Supabase using @supabase/ssr</task>
+          <task>Configure Vercel deployment with GitHub CI/CD</task>
+          <task>Set up ESLint, Prettier, and Husky pre-commit hooks</task>
+          <task>Create the base layout skeleton: Navbar, Sidebar, Footer</task>
+        </tasks>
+        <deliverable>Deployed skeleton at a Vercel URL with database connected</deliverable>
+      </week>
+
+      <week id="2" title="Authentication System">
+        <tasks>
+          <task>Build signup page and form accepting name, email, password, and batch</task>
+          <task>Build login page and form</task>
+          <task>Build verify, forgot, and reset password pages</task>
+          <task>Implement route protection middleware</task>
+          <task>Add session-aware navbar showing name and logout when signed in</task>
+          <task>Implement the database trigger for auto-creating public.users</task>
+          <task>Write Zod validation schemas for all auth inputs</task>
+          <task>Test the full auth flow end-to-end</task>
+        </tasks>
+        <deliverable>Users can register, verify email, log in, log out, and reset their password</deliverable>
+      </week>
+
+      <week id="3" title="Resources Section">
+        <tasks>
+          <task>Build resource listing page with category and sort filters</task>
+          <task>Build resource detail page</task>
+          <task>Build resource upload form with metadata and external URL field</task>
+          <task>Implement tag filtering with GIN-indexed queries</task>
+          <task>Implement upvoting using the votes table and UI button</task>
+          <task>Add basic PostgreSQL full-text search on resources</task>
+          <task>Award reputation points on resource upload and upvote events</task>
+        </tasks>
+        <deliverable>Full resource upload and discovery experience working end-to-end</deliverable>
+      </week>
+
+      <week id="4" title="Blog Section">
+        <tasks>
+          <task>Integrate TipTap editor with code block and Shiki syntax highlighting</task>
+          <task>Build blog editor page with write and draft saving</task>
+          <task>Build blog listing page with tag filters</task>
+          <task>Build blog reader page with sanitized HTML rendering</task>
+          <task>Implement draft versus published status flow</task>
+          <task>Auto-generate slugs from title with de-duplication</task>
+          <task>Add upvoting on blog posts</task>
+          <task>Add full-text search on blog posts</task>
+        </tasks>
+        <deliverable>Students can write, save drafts, publish, and read blogs</deliverable>
+      </week>
+
+    </phase>
+
+    <phase id="2" title="Community Features" duration="Weeks 5 to 8">
+
+      <week id="5" title="Forum System">
+        <tasks>
+          <task>Build thread listing page with category filter and sort options</task>
+          <task>Build thread detail page with full nested comment tree</task>
+          <task>Build create thread page</task>
+          <task>Implement recursive comment fetching using CTE query</task>
+          <task>Build comment reply UI supporting two levels of nesting</task>
+          <task>Implement upvoting on threads and comments</task>
+          <task>Add lock and pin controls for moderators</task>
+          <task>Add full-text search on forum threads</task>
+        </tasks>
+        <deliverable>Full working forum with nested discussions</deliverable>
+      </week>
+
+      <week id="6" title="Search and Notifications">
+        <tasks>
+          <task>Build global search page combining resources, blogs, and forums</task>
+          <task>Implement unified search query using UNION ALL</task>
+          <task>Build notification bell component and dropdown panel</task>
+          <task>Set up Supabase Realtime subscription for unread notification count</task>
+          <task>Implement notification insertion on reply and mention events</task>
+          <task>Parse @mentions in forum content and trigger notifications</task>
+        </tasks>
+        <deliverable>Global search works. Users receive live notifications.</deliverable>
+      </week>
+
+      <week id="7" title="User Profiles and Reputation">
+        <tasks>
+          <task>Build public profile page showing bio, stats, achievements, and activity</task>
+          <task>Build edit profile page for name, bio, avatar URL, and batch</task>
+          <task>Implement reputation point tracking across all actions</task>
+          <task>Display reputation level and badge on profile and navbar</task>
+          <task>Implement achievement unlock logic with badge UI</task>
+          <task>Build contribution stats section showing blog, resource, and thread counts</task>
+        </tasks>
+        <deliverable>Full user profile with reputation and achievements visible</deliverable>
+      </week>
+
+      <week id="8" title="Moderation and Admin">
+        <tasks>
+          <task>Build admin dashboard page protected by role check</task>
+          <task>Build report queue view showing pending reports</task>
+          <task>Implement report button on all content types</task>
+          <task>Implement resolve and dismiss actions on reports</task>
+          <task>Implement ban user action that sets role to banned</task>
+          <task>Build announcement creation form</task>
+          <task>Build announcements listing page</task>
+          <task>Add announcement banner on home page for active announcements</task>
+        </tasks>
+        <deliverable>Admins and moderators can moderate content and post announcements</deliverable>
+      </week>
+
+    </phase>
+
+    <phase id="3" title="DSA and Growth" duration="Weeks 9 to 12">
+
+      <week id="9" title="DSA Section">
+        <tasks>
+          <task>Build DSA problem listing page with filter by topic, difficulty, and platform</task>
+          <task>Implement mark as attempted and solved using dsa_progress table</task>
+          <task>Display user progress inline on the listing page</task>
+          <task>Highlight weekly challenge problems</task>
+          <task>Build admin form to add and edit DSA problems</task>
+        </tasks>
+        <deliverable>Structured DSA practice section with progress tracking</deliverable>
+      </week>
+
+      <week id="10" title="Leaderboards and Gamification">
+        <tasks>
+          <task>Build reputation leaderboard showing top contributors this week and all time</task>
+          <task>Build DSA leaderboard showing most problems solved</task>
+          <task>Implement activity streak tracking based on daily actions</task>
+          <task>Display streak count on profile</task>
+          <task>Polish achievement badge gallery on profile page</task>
+        </tasks>
+        <deliverable>Leaderboards live. Streaks and gamification fully visible.</deliverable>
+      </week>
+
+      <week id="11" title="Discovery and Trending">
+        <tasks>
+          <task>Build trending section on home dashboard showing most upvoted content this week</task>
+          <task>Add related posts on blog and forum pages using shared tag overlap</task>
+          <task>Add personalized feed on home page based on user's most-used tags</task>
+          <task>Improve filter UX across all listing pages</task>
+        </tasks>
+        <deliverable>Home dashboard shows meaningful personalized and trending content</deliverable>
+      </week>
+
+      <week id="12" title="Testing and Hardening">
+        <tasks>
+          <task>Write end-to-end tests for core flows using Playwright</task>
+          <task>Audit all database queries for performance and add missing indexes</task>
+          <task>Run Lighthouse audit on key pages and fix performance issues</task>
+          <task>Verify all RLS policies correctly block unauthorised access</task>
+          <task>Review and tighten rate limiting rules</task>
+          <task>Write contributor documentation including README, setup guide, and DB schema docs</task>
+        </tasks>
+        <deliverable>Stable, tested, documented platform ready for community use</deliverable>
+      </week>
+
+    </phase>
+
+    <phase id="4" title="Future Additions" duration="Post Week 12">
+      <future_features>
+        <feature>
+          <name>Integrated Online Judge</name>
+          <notes>Use Judge0 open source, self-hostable on Oracle Cloud free VPS, for in-platform code submission</notes>
+        </feature>
+        <feature>
+          <name>AI Search</name>
+          <notes>Supabase pgvector for semantic search using free embedding APIs</notes>
+        </feature>
+        <feature>
+          <name>Recommendation Engine</name>
+          <notes>Collaborative filtering on resource and blog interactions</notes>
+        </feature>
+        <feature>
+          <name>Placement Dashboard</name>
+          <notes>Company-wise resource grouping and offer tracker</notes>
+        </feature>
+        <feature>
+          <name>Email Digest</name>
+          <notes>Weekly summary of top content, requires email provider upgrade beyond Supabase free tier</notes>
+        </feature>
+      </future_features>
+    </phase>
+
+  </section>
+
+  <!-- ============================================================ -->
+  <!--  SECTION 11 — FREE TIER LIMITS AND CONSTRAINTS               -->
+  <!-- ============================================================ -->
+
+  <section id="11" title="Free Tier Limits and Constraints">
+
+    <subsection id="11.1" title="Supabase Free Tier">
+      <limits>
+        <limit>
+          <resource>Database storage</resource>
+          <amount>500 MB</amount>
+          <impact>Sufficient for text content. Files live on external links only.</impact>
+        </limit>
+        <limit>
+          <resource>Auth users</resource>
+          <amount>50,000</amount>
+          <impact>Far beyond DecSync batch size.</impact>
+        </limit>
+        <limit>
+          <resource>Realtime connections</resource>
+          <amount>200 concurrent</amount>
+          <impact>More than enough for this community.</impact>
+        </limit>
+        <limit>
+          <resource>Outbound emails</resource>
+          <amount>3 per hour</amount>
+          <impact>Fine for normal signups. Could queue during a large onboarding rush.</impact>
+        </limit>
+        <limit>
+          <resource>API requests</resource>
+          <amount>Unlimited</amount>
+          <impact>No concern.</impact>
+        </limit>
+      </limits>
+    </subsection>
+
+    <subsection id="11.2" title="Vercel Hobby Tier">
+      <limits>
+        <limit>
+          <resource>Bandwidth</resource>
+          <amount>100 GB per month</amount>
+          <impact>Sufficient. No video or file hosting on the platform.</impact>
+        </limit>
+        <limit>
+          <resource>Serverless function runtime</resource>
+          <amount>100 GB-hours per month</amount>
+          <impact>Sufficient for all API routes.</impact>
+        </limit>
+        <limit>
+          <resource>Build minutes</resource>
+          <amount>6,000 per month</amount>
+          <impact>More than enough for regular deployments.</impact>
+        </limit>
+      </limits>
+    </subsection>
+
+    <subsection id="11.3" title="When to Upgrade">
+      <p>
+        The platform will not need paid services until one of the following
+        conditions is met: the platform expands beyond the DecSync batch to
+        the entire college or multiple batches with 500 or more active users;
+        direct file hosting becomes necessary instead of external Drive links;
+        or email digest features require more than 3 emails per hour
+        consistently. At that point only two upgrades are needed: Supabase
+        Pro at 25 USD per month and Vercel Pro at 20 USD per month. Everything
+        else in the stack remains free regardless of scale.
+      </p>
+    </subsection>
+
+  </section>
+
+</document>
