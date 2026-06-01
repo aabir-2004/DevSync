@@ -5,8 +5,6 @@ import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import SearchBar from "@/components/shared/SearchBar";
-import Skeleton from "@/components/shared/Skeleton";
-import Tag from "@/components/shared/Tag";
 import { Search, BookOpen, FileText, MessageSquare, ArrowRight, Loader2 } from "lucide-react";
 
 interface SearchResult {

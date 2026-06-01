@@ -1,10 +1,21 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Search, Bell, Menu, X, BookOpen, FileText, MessageSquare, Trophy, Plus, Check, Loader2, Sparkles, Megaphone } from "lucide-react";
+
+interface NotificationItem {
+  id: string;
+  user_id: string;
+  title: string;
+  body?: string;
+  message?: string;
+  is_read: boolean;
+  created_at: string;
+  link?: string | null;
+}
 
 export default function Navbar() {
   const supabase = createClient();
@@ -14,7 +25,7 @@ export default function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Realtime Notifications state
-  const [notifications, setNotifications] = useState<any[]>([]);
+  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [isNotifOpen, setIsNotifOpen] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
@@ -32,20 +43,8 @@ export default function Navbar() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [router]);
 
-  // Fetch Auth User & Notifications
-  useEffect(() => {
-    const fetchUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        setUserId(user.id);
-        fetchNotifications(user.id);
-      }
-    };
-    fetchUser();
-  }, [supabase]);
-
-  // Fetch initial notifications
-  const fetchNotifications = async (uid: string) => {
+  // Fetch initial notifications helper with useCallback
+  const fetchNotifications = useCallback(async (uid: string) => {
     setIsNotifLoading(true);
     try {
       const { data } = await supabase
@@ -56,7 +55,7 @@ export default function Navbar() {
         .limit(5);
 
       if (data) {
-        setNotifications(data);
+        setNotifications(data as NotificationItem[]);
         setUnreadCount(data.filter((n) => !n.is_read).length);
       }
     } catch (err) {
@@ -64,7 +63,19 @@ export default function Navbar() {
     } finally {
       setIsNotifLoading(false);
     }
-  };
+  }, [supabase]);
+
+  // Fetch Auth User & Notifications
+  useEffect(() => {
+    const fetchUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        setUserId(user.id);
+        fetchNotifications(user.id);
+      }
+    };
+    fetchUser();
+  }, [supabase, fetchNotifications]);
 
   // Set up Supabase Realtime WebSocket listener
   useEffect(() => {
@@ -81,7 +92,7 @@ export default function Navbar() {
           filter: `user_id=eq.${userId}`,
         },
         (payload) => {
-          setNotifications((prev) => [payload.new, ...prev.slice(0, 4)]);
+          setNotifications((prev) => [payload.new as NotificationItem, ...prev.slice(0, 4)]);
           setUnreadCount((prev) => prev + 1);
         }
       )
@@ -119,7 +130,7 @@ export default function Navbar() {
     }
   };
 
-  const handleNotifClick = async (notif: any) => {
+  const handleNotifClick = async (notif: NotificationItem) => {
     if (!notif.is_read) {
       await supabase
         .from("notifications")

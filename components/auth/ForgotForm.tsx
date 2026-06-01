@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
-import { forgotSchema, ForgotInput } from "@/lib/validations/auth";
+import { forgotSchema } from "@/lib/validations/auth";
 import { Mail, Loader2, ArrowLeft, Send } from "lucide-react";
 import { z } from "zod";
 
@@ -42,8 +42,9 @@ export default function ForgotForm() {
       }
 
       setIsSubmitted(true);
-    } catch (err: any) {
-      setError(err.message || "Something went wrong. Please try again.");
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Something went wrong. Please try again.";
+      setError(message);
     } finally {
       setIsLoading(false);
     }
@@ -59,7 +60,7 @@ export default function ForgotForm() {
           Check your email
         </h2>
         <p className="mt-3 text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed max-w-xs mx-auto">
-          We've sent a password reset link to <span className="font-semibold text-zinc-800 dark:text-zinc-200">{email}</span>. Click the link inside to set a new password.
+          We&apos;ve sent a password reset link to <span className="font-semibold text-zinc-800 dark:text-zinc-200">{email}</span>. Click the link inside to set a new password.
         </p>
         <Link
           href="/auth/login"
@@ -79,7 +80,7 @@ export default function ForgotForm() {
           Forgot Password
         </h2>
         <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
-          Enter your email and we'll send you a password reset link.
+          Enter your email and we&apos;ll send you a password reset link.
         </p>
       </div>
 

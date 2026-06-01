@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { 
@@ -10,8 +10,6 @@ import {
   Megaphone, 
   CheckCircle, 
   XCircle, 
-  UserX, 
-  UserCheck, 
   Plus, 
   Loader2,
   Calendar,
@@ -19,17 +17,40 @@ import {
 } from "lucide-react";
 import Avatar from "@/components/shared/Avatar";
 
+interface AdminUser {
+  id: string;
+  name: string;
+  email: string;
+  role: "student" | "moderator" | "admin" | "banned";
+  batch: string | null;
+  avatar_url: string | null;
+  reputation: number;
+}
+
+interface ReportItem {
+  id: string;
+  reporter_id: string;
+  target_type: string;
+  target_id: string;
+  reason: string;
+  status: "pending" | "resolved" | "dismissed";
+  created_at: string;
+  users?: {
+    name: string;
+  } | null;
+}
+
 export default function AdminDashboard() {
   const router = useRouter();
   const supabase = createClient();
 
-  const [currentUser, setCurrentUser] = useState<any>(null);
+  const [currentUser, setCurrentUser] = useState<AdminUser | null>(null);
   const [activeTab, setActiveTab] = useState<"reports" | "users" | "announcements">("reports");
   const [isLoading, setIsLoading] = useState(true);
 
   // States
-  const [reports, setReports] = useState<any[]>([]);
-  const [users, setUsers] = useState<any[]>([]);
+  const [reports, setReports] = useState<ReportItem[]>([]);
+  const [users, setUsers] = useState<AdminUser[]>([]);
   const [annForm, setAnnForm] = useState({
     title: "",
     body: "",
@@ -49,6 +70,31 @@ export default function AdminDashboard() {
     { value: "event", label: "Cohort Meetup/Event" },
     { value: "deadline", label: "Submission Deadline" },
   ];
+
+  const fetchDashboardData = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      // Fetch pending reports
+      const { data: reportData } = await supabase
+        .from("reports")
+        .select("*, users!reports_reporter_id_fkey(name)")
+        .order("created_at", { ascending: false });
+      
+      setReports((reportData || []) as ReportItem[]);
+
+      // Fetch users list
+      const { data: userData } = await supabase
+        .from("users")
+        .select("*")
+        .order("name", { ascending: true });
+      
+      setUsers((userData || []) as AdminUser[]);
+    } catch (err) {
+      console.error("Error fetching admin data:", err);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [supabase]);
 
   // Verify Auth & Admin Role
   useEffect(() => {
@@ -73,39 +119,14 @@ export default function AdminDashboard() {
           return;
         }
 
-        setCurrentUser(profile);
+        setCurrentUser(profile as AdminUser);
         fetchDashboardData();
       } catch (err) {
         console.error("Error verifying admin details:", err);
       }
     };
     verifyAdmin();
-  }, [router, supabase]);
-
-  const fetchDashboardData = async () => {
-    setIsLoading(true);
-    try {
-      // Fetch pending reports
-      const { data: reportData } = await supabase
-        .from("reports")
-        .select("*, users!reports_reporter_id_fkey(name)")
-        .order("created_at", { ascending: false });
-      
-      setReports(reportData || []);
-
-      // Fetch users list
-      const { data: userData } = await supabase
-        .from("users")
-        .select("*")
-        .order("name", { ascending: true });
-      
-      setUsers(userData || []);
-    } catch (err) {
-      console.error("Error fetching admin data:", err);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  }, [router, supabase, fetchDashboardData]);
 
   // Moderation Actions
   const handleResolveReport = async (reportId: string, status: "resolved" | "dismissed") => {
@@ -124,7 +145,7 @@ export default function AdminDashboard() {
   };
 
   const handleUpdateUserRole = async (userId: string, currentRole: string, action: "promote" | "demote" | "ban" | "unban") => {
-    let newRole = currentRole;
+    let newRole = currentRole as "student" | "moderator" | "admin" | "banned";
     if (action === "promote") newRole = "moderator";
     else if (action === "demote") newRole = "student";
     else if (action === "ban") newRole = "banned";
@@ -150,6 +171,8 @@ export default function AdminDashboard() {
     setError(null);
     setSuccessMsg(null);
 
+    if (!currentUser) return;
+
     if (!annForm.title.trim() || !annForm.body.trim()) {
       setError("Title and announcement body are required");
       return;
@@ -169,8 +192,9 @@ export default function AdminDashboard() {
 
       setSuccessMsg("Announcement published successfully!");
       setAnnForm({ title: "", body: "", type: "general", expires_at: "" });
-    } catch (err: any) {
-      setError(err.message || "Failed to publish announcement.");
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Failed to publish announcement.";
+      setError(message);
     } finally {
       setIsSaving(false);
     }
@@ -267,7 +291,7 @@ export default function AdminDashboard() {
                   </div>
 
                   <p className="text-xs text-zinc-800 dark:text-zinc-200 font-semibold leading-relaxed">
-                    Reason: "{rep.reason}"
+                    Reason: &quot;{rep.reason}&quot;
                   </p>
                   
                   <p className="text-[10px] text-zinc-400 font-medium">

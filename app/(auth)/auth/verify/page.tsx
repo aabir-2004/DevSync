@@ -2,7 +2,7 @@
 
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { Mail, ArrowLeft, Inbox, CheckCircle, RefreshCw } from "lucide-react";
+import { Mail, ArrowLeft, CheckCircle, RefreshCw } from "lucide-react";
 import { Suspense, useState } from "react";
 
 function VerifyContent() {
@@ -34,7 +34,7 @@ function VerifyContent() {
         Verify your email
       </h2>
       <p className="mt-3 text-xs text-zinc-500 dark:text-zinc-400 max-w-sm mx-auto leading-relaxed">
-        We've sent a verification link to <span className="font-semibold text-zinc-800 dark:text-zinc-200">{email}</span>. Please click the link to activate your account.
+        We&apos;ve sent a verification link to <span className="font-semibold text-zinc-800 dark:text-zinc-200">{email}</span>. Please click the link to activate your account.
       </p>
 
       {/* Resend status or instructions */}
@@ -47,7 +47,7 @@ function VerifyContent() {
         )}
         
         <p className="text-xs text-zinc-500 dark:text-zinc-400">
-          Didn't receive the email?{" "}
+          Didn&apos;t receive the email?{" "}
           <button
             onClick={handleResend}
             disabled={isResending}

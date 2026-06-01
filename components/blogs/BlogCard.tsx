@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { BookOpen, Calendar, ArrowUpRight, Eye } from "lucide-react";
+import { BookOpen, ArrowUpRight, Eye } from "lucide-react";
 import Tag from "@/components/shared/Tag";
 import VoteButton from "@/components/shared/VoteButton";
 import Avatar from "@/components/shared/Avatar";

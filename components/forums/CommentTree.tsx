@@ -4,7 +4,7 @@ import CommentItem, { CommentNode } from "./CommentItem";
 
 interface CommentTreeProps {
   comments: CommentNode[];
-  currentUser: any;
+  currentUser: { id: string } | null;
   onRefresh: () => void;
 }
 

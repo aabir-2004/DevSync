@@ -74,8 +74,9 @@ export default function LoginForm() {
         router.push(nextUrl);
         router.refresh(); // Refresh layout to check auth cookies
       }
-    } catch (err: any) {
-      setSubmitError(err.message || "Invalid email or password.");
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Invalid email or password.";
+      setSubmitError(message);
     } finally {
       setIsLoading(false);
     }
@@ -180,7 +181,7 @@ export default function LoginForm() {
 
       {/* Redirect back to Register */}
       <p className="text-center text-xs text-zinc-500 dark:text-zinc-400 pt-2">
-        Don't have an account yet?{" "}
+        Don&apos;t have an account yet?{" "}
         <Link href="/auth/signup" className="font-bold text-primary hover:underline">
           Sign up
         </Link>

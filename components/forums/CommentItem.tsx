@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { MessageSquare, Calendar, Trash2 } from "lucide-react";
+import { MessageSquare, Trash2 } from "lucide-react";
 import Avatar from "@/components/shared/Avatar";
 import VoteButton from "@/components/shared/VoteButton";
 import CommentForm from "./CommentForm";
@@ -24,7 +24,7 @@ export interface CommentNode {
 
 interface CommentItemProps {
   comment: CommentNode;
-  currentUser: any;
+  currentUser: { id: string } | null;
   onRefresh: () => void;
 }
 

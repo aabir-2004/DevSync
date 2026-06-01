@@ -203,6 +203,7 @@ export default function HomeDashboard() {
         <div className="flex flex-col md:flex-row items-center gap-6">
           {/* Left Content */}
           <div className="flex-1 space-y-4 z-10">
+            <p className="text-[10px] font-pixel text-primary uppercase tracking-wider">Welcome back, {userName}!</p>
             <h1 className="text-2xl md:text-3xl font-black text-zinc-900 tracking-tight leading-tight">
               Learn. Share.{" "}
               <span className="text-primary font-pixel text-lg md:text-xl">Grow Together.</span>

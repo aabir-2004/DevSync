@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { MessageSquare, Eye, Pin, Lock, Calendar } from "lucide-react";
+import { MessageSquare, Eye, Pin, Lock } from "lucide-react";
 import Tag from "@/components/shared/Tag";
 import VoteButton from "@/components/shared/VoteButton";
 import Avatar from "@/components/shared/Avatar";

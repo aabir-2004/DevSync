@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Globe, Shield } from "lucide-react";
+import { Shield } from "lucide-react";
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();

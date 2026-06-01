@@ -88,8 +88,9 @@ export default function SignupForm() {
       if (data?.user) {
         router.push("/auth/verify?email=" + encodeURIComponent(formData.email));
       }
-    } catch (err: any) {
-      setSubmitError(err.message || "An unexpected error occurred during signup.");
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "An unexpected error occurred during signup.";
+      setSubmitError(message);
     } finally {
       setIsLoading(false);
     }

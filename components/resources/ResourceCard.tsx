@@ -1,7 +1,6 @@
 "use client";
 
-import Link from "next/link";
-import { ExternalLink, Calendar, BookOpen, GraduationCap } from "lucide-react";
+import { ExternalLink, Calendar, GraduationCap } from "lucide-react";
 import VoteButton from "@/components/shared/VoteButton";
 import Tag from "@/components/shared/Tag";
 import Avatar from "@/components/shared/Avatar";

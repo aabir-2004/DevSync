@@ -2,9 +2,8 @@
 
 import { useState, useEffect, use } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { ArrowLeft, MessageSquare, Pin, Lock, Calendar, Eye, Sparkles, Loader2 } from "lucide-react";
+import { ArrowLeft, MessageSquare, Pin, Lock, Calendar, Eye, Loader2 } from "lucide-react";
 import Avatar from "@/components/shared/Avatar";
 import Tag from "@/components/shared/Tag";
 import VoteButton from "@/components/shared/VoteButton";
@@ -18,13 +17,12 @@ interface ThreadDetailPageProps {
 }
 
 export default function ThreadDetailPage({ params }: ThreadDetailPageProps) {
-  const router = useRouter();
   const supabase = createClient();
   const { id } = use(params);
 
   const [thread, setThread] = useState<ForumThread | null>(null);
   const [comments, setComments] = useState<CommentNode[]>([]);
-  const [currentUser, setCurrentUser] = useState<any>(null);
+  const [currentUser, setCurrentUser] = useState<{ id: string } | null>(null);
   
   const [isLoading, setIsLoading] = useState(true);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
@@ -56,7 +54,7 @@ export default function ThreadDetailPage({ params }: ThreadDetailPageProps) {
           throw new Error("Thread not found.");
         }
 
-        setThread(threadData as any);
+        setThread(threadData as unknown as ForumThread);
 
         // Fetch comments tree using our recursive CTE RPC database function!
         const { data: commentData, error: commentError } = await supabase.rpc(
@@ -65,7 +63,7 @@ export default function ThreadDetailPage({ params }: ThreadDetailPageProps) {
         );
 
         if (commentError) throw commentError;
-        setComments((commentData as any) || []);
+        setComments((commentData as unknown as CommentNode[]) || []);
 
         // Increment Views count (non-blocking)
         await supabase

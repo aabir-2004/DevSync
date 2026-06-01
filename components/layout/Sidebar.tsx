@@ -12,8 +12,7 @@ import {
   Settings, 
   ChevronRight, 
   Flame, 
-  Trophy,
-  Activity
+  Trophy
 } from "lucide-react";
 
 interface Contributor {
@@ -29,7 +28,6 @@ export default function Sidebar() {
   const [solvedCount, setSolvedCount] = useState(0);
   const [totalProblems, setTotalProblems] = useState(0);
   const [contributors, setContributors] = useState<Contributor[]>([]);
-  const [userId, setUserId] = useState<string | null>(null);
 
   const sidebarLinks = [
     { href: "/", label: "Home", icon: Home },
@@ -46,7 +44,6 @@ export default function Sidebar() {
         // Fetch user session details
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {
-          setUserId(user.id);
           
           // Get user solved DSA problems count
           const { count: solved } = await supabase

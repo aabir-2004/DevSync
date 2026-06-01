@@ -6,21 +6,34 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { getReputationLevel } from "@/lib/reputation";
 import Avatar from "@/components/shared/Avatar";
-import Skeleton from "@/components/shared/Skeleton";
-import Tag from "@/components/shared/Tag";
 import { 
-  User, 
   GraduationCap, 
   Award, 
   BookOpen, 
   FileText, 
   Trophy, 
-  Flame, 
   Settings, 
   Calendar, 
   Activity, 
   Loader2 
 } from "lucide-react";
+
+interface ProfileUser {
+  id: string;
+  name: string;
+  role: string;
+  batch: string | null;
+  bio: string | null;
+  created_at: string;
+  avatar_url: string | null;
+  reputation: number;
+}
+
+interface Achievement {
+  id: string;
+  badge_key: string;
+  earned_at: string;
+}
 
 interface ProfilePageProps {
   params: Promise<{ id: string }>;
@@ -31,9 +44,9 @@ export default function ProfilePage({ params }: ProfilePageProps) {
   const supabase = createClient();
   const { id: paramId } = use(params);
 
-  const [profile, setProfile] = useState<any>(null);
-  const [currentUser, setCurrentUser] = useState<any>(null);
-  const [achievements, setAchievements] = useState<any[]>([]);
+  const [profile, setProfile] = useState<ProfileUser | null>(null);
+  const [currentUser, setCurrentUser] = useState<{ id: string } | null>(null);
+  const [achievements, setAchievements] = useState<Achievement[]>([]);
   
   // Custom stats
   const [stats, setStats] = useState({

@@ -15,7 +15,6 @@ import {
   ChevronDown, 
   ChevronUp
 } from "lucide-react";
-import Tag from "@/components/shared/Tag";
 
 interface Problem {
   id: string;
@@ -28,11 +27,6 @@ interface Problem {
   is_weekly: boolean;
 }
 
-interface Progress {
-  problem_id: string;
-  status: "attempted" | "solved";
-}
-
 export default function DSAPage() {
   const supabase = createClient();
   
@@ -40,7 +34,6 @@ export default function DSAPage() {
   const [problems, setProblems] = useState<Problem[]>([]);
   const [progressMap, setProgressMap] = useState<Record<string, "attempted" | "solved">>({});
   const [userId, setUserId] = useState<string | null>(null);
-  const [userRole, setUserRole] = useState<string>("student");
   
   // UI & Loading States
   const [isLoading, setIsLoading] = useState(true);
@@ -76,14 +69,6 @@ export default function DSAPage() {
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {
           setUserId(user.id);
-          
-          // Fetch user profile role
-          const { data: profile } = await supabase
-            .from("users")
-            .select("role")
-            .eq("id", user.id)
-            .single();
-          if (profile) setUserRole(profile.role);
 
           // Fetch user progress
           const { data: userProgress } = await supabase
@@ -132,7 +117,7 @@ export default function DSAPage() {
   const handleSeedProblems = async () => {
     setIsLoading(true);
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      await supabase.auth.getUser();
       const { error } = await supabase.from("dsa_problems").insert(SAMPLE_PROBLEMS);
       if (error) throw error;
       

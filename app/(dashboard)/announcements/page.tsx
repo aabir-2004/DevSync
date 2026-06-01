@@ -31,7 +31,6 @@ interface Announcement {
 export default function AnnouncementsPage() {
   const supabase = createClient();
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
-  const [filteredAnnouncements, setFilteredAnnouncements] = useState<Announcement[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isAdminOrMod, setIsAdminOrMod] = useState(false);
 
@@ -76,32 +75,27 @@ export default function AnnouncementsPage() {
     loadData();
   }, [supabase]);
 
-  // Apply filters
-  useEffect(() => {
-    const now = new Date();
-    let result = announcements;
-
-    // Search query filter
+  // Compute filtered announcements inline during render pass (React Best Practice)
+  const filteredAnnouncements = announcements.filter((a) => {
+    // 1. Search Query filter
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
-      result = result.filter(
-        (a) => a.title.toLowerCase().includes(q) || a.body.toLowerCase().includes(q)
-      );
+      if (!a.title.toLowerCase().includes(q) && !a.body.toLowerCase().includes(q)) {
+        return false;
+      }
     }
-
-    // Type filter
-    if (selectedType !== "all") {
-      result = result.filter((a) => a.type === selectedType);
+    // 2. Type filter
+    if (selectedType !== "all" && a.type !== selectedType) {
+      return false;
     }
-
-    // Archived (expired) filter
-    result = result.filter((a) => {
-      const isExpired = a.expires_at ? new Date(a.expires_at) < now : false;
-      return showArchived ? true : !isExpired;
-    });
-
-    setFilteredAnnouncements(result);
-  }, [announcements, searchQuery, selectedType, showArchived]);
+    // 3. Archived (expired) filter
+    const now = new Date();
+    const isExpired = a.expires_at ? new Date(a.expires_at) < now : false;
+    if (!showArchived && isExpired) {
+      return false;
+    }
+    return true;
+  });
 
   // Helper to format announcement type badges
   const getAnnouncementTypeDetails = (type: string) => {

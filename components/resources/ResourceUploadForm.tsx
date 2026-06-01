@@ -4,7 +4,6 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Loader2, Plus, Sparkles, BookOpen, GraduationCap, Link2, Tag as TagIcon } from "lucide-react";
-import Tag from "@/components/shared/Tag";
 
 export default function ResourceUploadForm() {
   const router = useRouter();
@@ -107,8 +106,9 @@ export default function ResourceUploadForm() {
 
       router.push("/resources");
       router.refresh();
-    } catch (err: any) {
-      setSubmitError(err.message || "An unexpected error occurred during submission.");
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "An unexpected error occurred during submission.";
+      setSubmitError(message);
     } finally {
       setIsLoading(false);
     }

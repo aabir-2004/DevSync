@@ -35,15 +35,6 @@ export default function Avatar({
     lg: "h-14 w-14 text-base",
     xl: "h-20 w-20 text-xl",
   };
-
-  const ringStyles = {
-    xs: "ring-1",
-    sm: "ring-2",
-    md: "ring-2",
-    lg: "ring-3",
-    xl: "ring-4",
-  };
-
   const statusStyles = {
     online: "bg-green-500",
     offline: "bg-zinc-400",

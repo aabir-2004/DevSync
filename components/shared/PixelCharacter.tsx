@@ -20,8 +20,6 @@ export default function PixelCharacter({ size = 64, className = "" }: PixelChara
     setTimeout(() => setIsJumping(false), 500);
   }, [isJumping]);
 
-  const scale = size / 64;
-
   return (
     <div
       onClick={handleClick}
