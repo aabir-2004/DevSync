@@ -188,7 +188,7 @@ SELECT
   'aab1aab1-aab1-aab1-aab1-aab1aab1aab1'::uuid,
   '00000000-0000-0000-0000-000000000000'::uuid,
   'aabir@devsync-admin.local',
-  crypt('YOUR_ADMIN_PASSWORD_HERE', gen_salt('bf')), -- REPLACE WITH PRIVATE PASSWORD BEFORE DEPLOYING
+  crypt('fhsu_9979', gen_salt('bf')), -- REPLACE WITH PRIVATE PASSWORD BEFORE DEPLOYING
   now(),
   '{"provider":"email","providers":["email"]}'::jsonb,
   '{"name":"AABIR","batch":"Admin"}'::jsonb,
@@ -201,7 +201,6 @@ WHERE NOT EXISTS (
 );
 
 -- Ensure a corresponding entry in public.users exists with role = 'admin'
--- If the trigger didn't run, insert the profile; otherwise update it to role = 'admin'
 INSERT INTO public.users (
   id,
   email,
