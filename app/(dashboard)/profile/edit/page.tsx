@@ -4,7 +4,8 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
-import { Sparkles, Loader2, Save, ArrowLeft, User, GraduationCap, FileText, Image as ImageIcon } from "lucide-react";
+import { Sparkles, Loader2, Save, ArrowLeft, User, GraduationCap, FileText, Image as ImageIcon, Upload } from "lucide-react";
+import Avatar from "@/components/shared/Avatar";
 
 export default function ProfileEditPage() {
   const router = useRouter();
@@ -19,6 +20,7 @@ export default function ProfileEditPage() {
 
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitError, setSubmitError] = useState<string | null>(null);
 
@@ -72,6 +74,50 @@ export default function ProfileEditPage() {
     setFormData((prev) => ({ ...prev, [name]: value }));
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: "" }));
+    }
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      setSubmitError("Please upload an image file.");
+      return;
+    }
+
+    if (file.size > 2 * 1024 * 1024) {
+      setSubmitError("Image file size must be less than 2MB.");
+      return;
+    }
+
+    setIsUploading(true);
+    setSubmitError(null);
+
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Authentication session expired.");
+
+      const fileExt = file.name.split(".").pop();
+      const fileName = `${user.id}-${Math.random().toString(36).substring(2, 7)}.${fileExt}`;
+      const filePath = `${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from("avatars")
+        .upload(filePath, file, { upsert: true });
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from("avatars")
+        .getPublicUrl(filePath);
+
+      setFormData((prev) => ({ ...prev, avatar_url: publicUrl }));
+    } catch (err: any) {
+      console.error("Upload error:", err);
+      setSubmitError(err.message || "Failed to upload avatar image.");
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -213,21 +259,61 @@ export default function ProfileEditPage() {
             />
           </div>
 
-          {/* Profile Avatar link */}
-          <div className="space-y-1.5">
+          {/* Profile Avatar upload & preview */}
+          <div className="space-y-3">
             <label className="text-xs font-bold text-zinc-700 dark:text-zinc-300 flex items-center gap-1">
               <ImageIcon className="h-4 w-4 text-zinc-400" />
-              Avatar Image URL (Optional)
+              Profile Picture
             </label>
-            <input
-              type="text"
-              name="avatar_url"
-              value={formData.avatar_url}
-              onChange={handleChange}
-              disabled={isSaving}
-              placeholder="e.g. https://images.unsplash.com/..."
-              className="w-full rounded-2xl border border-zinc-200 bg-zinc-50/50 py-2.5 px-4 text-xs text-zinc-900 focus:border-primary focus:bg-white focus:outline-none dark:border-zinc-800 dark:bg-zinc-900 dark:text-white transition-all"
-            />
+            
+            <div className="flex items-center gap-4 p-4 border border-zinc-200 rounded-2xl bg-zinc-50/20 dark:border-zinc-800">
+              <Avatar 
+                name={formData.name || "Preview"} 
+                src={formData.avatar_url} 
+                size="lg" 
+              />
+              <div className="flex-1 space-y-2">
+                <div className="relative">
+                  <input
+                    type="file"
+                    id="avatar-upload"
+                    accept="image/*"
+                    onChange={handleFileUpload}
+                    disabled={isSaving || isUploading}
+                    className="hidden"
+                  />
+                  <label
+                    htmlFor="avatar-upload"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-zinc-200 hover:border-primary text-zinc-650 hover:text-primary transition-all text-xs font-semibold cursor-pointer select-none dark:border-zinc-800 dark:text-zinc-300"
+                  >
+                    {isUploading ? (
+                      <Loader2 className="h-3.5 w-3.5 animate-spin text-primary" />
+                    ) : (
+                      <Upload className="h-3.5 w-3.5" />
+                    )}
+                    <span>{isUploading ? "Uploading..." : "Upload Image"}</span>
+                  </label>
+                </div>
+                <p className="text-[10px] text-zinc-400 font-semibold">
+                  Supports JPG, PNG, GIF. Max 2MB.
+                </p>
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-bold text-zinc-500">
+                Or paste direct Image URL
+              </label>
+              <input
+                type="text"
+                name="avatar_url"
+                value={formData.avatar_url}
+                onChange={handleChange}
+                disabled={isSaving || isUploading}
+                placeholder="https://images.unsplash.com/..."
+                className="w-full rounded-2xl border border-zinc-200 bg-zinc-50/50 py-2.5 px-4 text-xs text-zinc-900 focus:border-primary focus:bg-white focus:outline-none dark:border-zinc-800 dark:bg-zinc-900 dark:text-white transition-all"
+              />
+            </div>
           </div>
 
           {/* Submit Save Button */}

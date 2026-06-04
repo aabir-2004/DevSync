@@ -33,6 +33,7 @@ export default function AnnouncementsPage() {
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isAdminOrMod, setIsAdminOrMod] = useState(false);
+  const [alertIgnoreDate, setAlertIgnoreDate] = useState<Date | null>(null);
 
   // Filter States
   const [searchQuery, setSearchQuery] = useState("");
@@ -44,18 +45,29 @@ export default function AnnouncementsPage() {
     const loadData = async () => {
       setIsLoading(true);
       try {
-        // Get user role
+        // Get user role & alert ignore date
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {
           const { data: profile } = await supabase
             .from("users")
-            .select("role")
+            .select("role, alert_ignore_date")
             .eq("id", user.id)
             .single();
           
-          if (profile && (profile.role === "admin" || profile.role === "moderator")) {
-            setIsAdminOrMod(true);
+          if (profile) {
+            if (profile.role === "admin" || profile.role === "moderator") {
+              setIsAdminOrMod(true);
+            }
+            if (profile.alert_ignore_date) {
+              setAlertIgnoreDate(new Date(profile.alert_ignore_date));
+            }
           }
+        }
+
+        // Check local storage fallback
+        const localDate = localStorage.getItem("devsync:alert_ignore_date");
+        if (localDate) {
+          setAlertIgnoreDate(new Date(localDate));
         }
 
         // Fetch announcements
@@ -88,10 +100,12 @@ export default function AnnouncementsPage() {
     if (selectedType !== "all" && a.type !== selectedType) {
       return false;
     }
-    // 3. Archived (expired) filter
+    // 3. Archived (expired) / Ignored filter
     const now = new Date();
     const isExpired = a.expires_at ? new Date(a.expires_at) < now : false;
-    if (!showArchived && isExpired) {
+    const isIgnored = alertIgnoreDate ? new Date(a.created_at) < alertIgnoreDate : false;
+    
+    if (!showArchived && (isExpired || isIgnored)) {
       return false;
     }
     return true;
@@ -221,6 +235,7 @@ export default function AnnouncementsPage() {
         <div className="space-y-4">
           {filteredAnnouncements.map((ann) => {
             const isExpired = isAnnouncementExpired(ann.expires_at);
+            const isIgnored = alertIgnoreDate ? new Date(ann.created_at) < alertIgnoreDate : false;
             const { label, variant, icon: Icon, color } = getAnnouncementTypeDetails(ann.type);
             const dateStr = new Date(ann.created_at).toLocaleDateString("en-US", {
               month: "short",
@@ -239,7 +254,7 @@ export default function AnnouncementsPage() {
               <div 
                 key={ann.id} 
                 className={`pixel-card  p-5 border transition-all relative overflow-hidden flex flex-col md:flex-row md:items-start gap-4 ${
-                  isExpired 
+                  isExpired || isIgnored
                     ? "bg-zinc-50/40 border-zinc-200 zinc-950/20 dark:border-zinc-850 opacity-75 hover:opacity-100" 
                     : "border-zinc-150/80 dark:border-zinc-800/80"
                 }`}
@@ -255,8 +270,13 @@ export default function AnnouncementsPage() {
                     <div className="flex items-center gap-2">
                       <Tag label={label} variant={variant} size="xs" />
                       {isExpired && (
-                        <span className="bg-red-50 text-red-600 red-950/25 dark:text-red-400 border border-red-100 dark:border-red-900/10 px-2 py-0.5 rounded-full text-[9px] font-bold">
+                        <span className="bg-red-50 text-red-600 dark:text-red-400 border border-red-100 dark:border-red-900/10 px-2 py-0.5 rounded-full text-[9px] font-bold">
                           EXPIRED
+                        </span>
+                      )}
+                      {isIgnored && (
+                        <span className="bg-zinc-100 text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-800 px-2 py-0.5 rounded-full text-[9px] font-bold">
+                          IGNORED
                         </span>
                       )}
                     </div>

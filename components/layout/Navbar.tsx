@@ -5,6 +5,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Search, Bell, Menu, X, BookOpen, FileText, MessageSquare, Trophy, Plus, Check, Loader2, Sparkles, Megaphone } from "lucide-react";
+import Avatar from "@/components/shared/Avatar";
 
 interface NotificationItem {
   id: string;
@@ -65,6 +66,9 @@ export default function Navbar() {
     }
   }, [supabase]);
 
+  // User Profile state
+  const [profile, setProfile] = useState<{ name: string; avatar_url: string | null } | null>(null);
+
   // Fetch Auth User & Notifications
   useEffect(() => {
     const fetchUser = async () => {
@@ -72,6 +76,16 @@ export default function Navbar() {
       if (user) {
         setUserId(user.id);
         fetchNotifications(user.id);
+
+        // Fetch user profile name and avatar
+        const { data: userData } = await supabase
+          .from("users")
+          .select("name, avatar_url")
+          .eq("id", user.id)
+          .single();
+        if (userData) {
+          setProfile(userData);
+        }
       }
     };
     fetchUser();
@@ -270,9 +284,15 @@ export default function Navbar() {
           {/* Profile */}
           <Link
             href="/profile/me"
-            className="flex h-8 w-8 items-center justify-center bg-primary-100 text-primary-950 font-bold text-xs border-2 border-primary-300 hover:border-primary transition-all overflow-hidden"
+            className="flex items-center justify-center transition-all overflow-hidden"
           >
-            AS
+            <Avatar 
+              name={profile?.name || "User"} 
+              src={profile?.avatar_url} 
+              size="sm" 
+              shape="square" 
+              className="border-2 border-primary-300 hover:border-primary transition-all cursor-pointer"
+            />
           </Link>
 
           {/* Mobile Menu */}

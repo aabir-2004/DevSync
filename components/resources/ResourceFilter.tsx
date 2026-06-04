@@ -16,14 +16,11 @@ interface ResourceFilterProps {
 export default function ResourceFilter({ filters, onChange }: ResourceFilterProps) {
   const categories = [
     { value: "all", label: "All Categories" },
-    { value: "notes", label: "Notes" },
-    { value: "pdf", label: "PDF Documents" },
-    { value: "placement", label: "Placement Sheets" },
-    { value: "dsa", label: "DSA Practice" },
-    { value: "development", label: "Web/App Dev" },
-    { value: "system_design", label: "System Design" },
-    { value: "interview_exp", label: "Interview Prep" },
-    { value: "competitive", label: "Competitive Coding" },
+    { value: "pdf", label: "PDF" },
+    { value: "code_file", label: "CODE FILE" },
+    { value: "sheet", label: "XML/JSON SHEET" },
+    { value: "dsa_link", label: "DSA LINKS" },
+    { value: "link", label: "LINKS" },
   ];
 
   const semesters = [

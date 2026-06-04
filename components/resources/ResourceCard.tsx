@@ -1,6 +1,8 @@
 "use client";
 
-import { ExternalLink, Calendar, GraduationCap } from "lucide-react";
+import { useState, useEffect } from "react";
+import { createClient } from "@/lib/supabase/client";
+import { ExternalLink, Calendar, GraduationCap, Bookmark } from "lucide-react";
 import VoteButton from "@/components/shared/VoteButton";
 import Tag from "@/components/shared/Tag";
 import Avatar from "@/components/shared/Avatar";
@@ -28,6 +30,62 @@ interface ResourceCardProps {
 }
 
 export default function ResourceCard({ resource }: ResourceCardProps) {
+  const supabase = createClient();
+  const [isBookmarked, setIsBookmarked] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [isToggling, setIsToggling] = useState(false);
+
+  useEffect(() => {
+    const checkBookmark = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        setUserId(user.id);
+        const { data } = await supabase
+          .from("bookmarks")
+          .select("id")
+          .eq("user_id", user.id)
+          .eq("target_id", resource.id)
+          .eq("target_type", "resource")
+          .maybeSingle();
+        if (data) {
+          setIsBookmarked(true);
+        }
+      }
+    };
+    checkBookmark();
+  }, [resource.id, supabase]);
+
+  const toggleBookmark = async () => {
+    if (!userId || isToggling) return;
+    setIsToggling(true);
+    try {
+      if (isBookmarked) {
+        const { error } = await supabase
+          .from("bookmarks")
+          .delete()
+          .eq("user_id", userId)
+          .eq("target_id", resource.id)
+          .eq("target_type", "resource");
+        if (error) throw error;
+        setIsBookmarked(false);
+      } else {
+        const { error } = await supabase
+          .from("bookmarks")
+          .insert({
+            user_id: userId,
+            target_id: resource.id,
+            target_type: "resource"
+          });
+        if (error) throw error;
+        setIsBookmarked(true);
+      }
+    } catch (err) {
+      console.error("Failed to toggle bookmark:", err);
+    } finally {
+      setIsToggling(false);
+    }
+  };
+
   // Format created date
   const formatDate = (dateStr: string) => {
     const d = new Date(dateStr);
@@ -37,15 +95,11 @@ export default function ResourceCard({ resource }: ResourceCardProps) {
   // Map category to tag variant
   const getCategoryVariant = (cat: string) => {
     const mapping: Record<string, "primary" | "secondary" | "success" | "warning" | "info" | "neutral"> = {
-      notes: "info",
       pdf: "neutral",
-      placement: "success",
-      dsa: "primary",
-      development: "warning",
-      system_design: "primary",
-      interview_exp: "success",
-      competitive: "warning",
-      other: "neutral",
+      code_file: "warning",
+      sheet: "success",
+      dsa_link: "primary",
+      link: "info",
     };
     return mapping[cat] || "neutral";
   };
@@ -119,10 +173,23 @@ export default function ResourceCard({ resource }: ResourceCardProps) {
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           {/* Voting */}
           <VoteButton initialScore={resource.upvotes} />
           
+          {/* Bookmark */}
+          <button
+            onClick={toggleBookmark}
+            disabled={isToggling}
+            className={`flex h-8 w-8 items-center justify-center rounded-full border-2 transition-all duration-150 scale-100 hover:scale-105 cursor-pointer ${
+              isBookmarked 
+                ? "bg-primary-50 border-primary text-primary dark:bg-primary-950/20" 
+                : "border-zinc-205 border-zinc-200 dark:border-zinc-800 hover:border-primary text-zinc-400 hover:text-primary"
+            }`}
+          >
+            <Bookmark className={`h-3.5 w-3.5 ${isBookmarked ? "fill-primary" : ""}`} />
+          </button>
+
           {/* External Action */}
           <a
             href={resource.external_url}

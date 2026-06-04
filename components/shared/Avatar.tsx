@@ -8,6 +8,7 @@ interface AvatarProps {
   size?: "xs" | "sm" | "md" | "lg" | "xl";
   status?: "online" | "offline" | "away" | null;
   className?: string;
+  shape?: "circle" | "square";
 }
 
 export default function Avatar({
@@ -16,6 +17,7 @@ export default function Avatar({
   size = "md",
   status = null,
   className = "",
+  shape = "circle",
 }: AvatarProps) {
   // Extract initials
   const getInitials = (userName: string) => {
@@ -52,8 +54,10 @@ export default function Avatar({
   return (
     <div className={`relative inline-block ${className}`}>
       <div
-        className={`flex items-center justify-center rounded-full overflow-hidden font-bold select-none ${
+        className={`flex items-center justify-center overflow-hidden font-bold select-none ${
           sizeStyles[size]
+        } ${
+          shape === "circle" ? "rounded-full" : ""
         } ${
           src 
             ? "bg-zinc-100 zinc-800" 

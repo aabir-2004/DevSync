@@ -35,9 +35,9 @@ export default function RightPanel() {
   const supabase = createClient();
 
   // Dynamic States
-  const [activeMembers, setActiveMembers] = useState(248);
-  const [resourcesCount, setResourcesCount] = useState(1104);
-  const [solvedCount, setSolvedCount] = useState(842);
+  const [activeMembers, setActiveMembers] = useState(0);
+  const [resourcesCount, setResourcesCount] = useState(0);
+  const [solvedCount, setSolvedCount] = useState(0);
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [activities, setActivities] = useState<ActivityItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -67,18 +67,18 @@ export default function RightPanel() {
         const { count: usersCount } = await supabase
           .from("users")
           .select("*", { count: "exact", head: true });
-        if (usersCount) setActiveMembers(usersCount);
+        if (usersCount !== null) setActiveMembers(usersCount);
 
         const { count: rCount } = await supabase
           .from("resources")
           .select("*", { count: "exact", head: true });
-        if (rCount) setResourcesCount(rCount);
+        if (rCount !== null) setResourcesCount(rCount);
 
         const { count: sCount } = await supabase
           .from("dsa_progress")
           .select("*", { count: "exact", head: true })
           .eq("status", "solved");
-        if (sCount) setSolvedCount(sCount);
+        if (sCount !== null) setSolvedCount(sCount);
 
         // 2. Fetch Latest Active Announcements (limit 3)
         const nowStr = new Date().toISOString();

@@ -12,7 +12,7 @@ export default function ResourceUploadForm() {
   const [formData, setFormData] = useState({
     title: "",
     description: "",
-    category: "notes",
+    category: "pdf",
     semester: "",
     subject: "",
     external_url: "",
@@ -26,15 +26,11 @@ export default function ResourceUploadForm() {
   const [submitError, setSubmitError] = useState<string | null>(null);
 
   const categories = [
-    { value: "notes", label: "Notes" },
-    { value: "pdf", label: "PDF Documents" },
-    { value: "placement", label: "Placement Sheets" },
-    { value: "dsa", label: "DSA Sheets" },
-    { value: "development", label: "Web/App Dev" },
-    { value: "system_design", label: "System Design" },
-    { value: "interview_exp", label: "Interview Prep" },
-    { value: "competitive", label: "Competitive Coding" },
-    { value: "other", label: "Other" },
+    { value: "pdf", label: "PDF" },
+    { value: "code_file", label: "CODE FILE" },
+    { value: "sheet", label: "XML/JSON SHEET" },
+    { value: "dsa_link", label: "DSA LINKS" },
+    { value: "link", label: "LINKS" },
   ];
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {

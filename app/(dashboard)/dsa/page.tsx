@@ -13,7 +13,9 @@ import {
   Loader2, 
   Layers, 
   ChevronDown, 
-  ChevronUp
+  ChevronUp,
+  Bookmark,
+  X
 } from "lucide-react";
 
 interface Problem {
@@ -33,11 +35,15 @@ export default function DSAPage() {
   // Database States
   const [problems, setProblems] = useState<Problem[]>([]);
   const [progressMap, setProgressMap] = useState<Record<string, "attempted" | "solved">>({});
+  const [bookmarkedIds, setBookmarkedIds] = useState<Set<string>>(new Set());
+  const [dsaLinks, setDsaLinks] = useState<any[]>([]);
   const [userId, setUserId] = useState<string | null>(null);
   
   // UI & Loading States
   const [isLoading, setIsLoading] = useState(true);
   const [isUpdating, setIsUpdating] = useState<string | null>(null);
+  const [activeEmbedUrl, setActiveEmbedUrl] = useState<string | null>(null);
+  const [activeEmbedTitle, setActiveEmbedTitle] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTopic, setSelectedTopic] = useState<string>("all");
   const [selectedDifficulty, setSelectedDifficulty] = useState<string>("all");
@@ -83,6 +89,17 @@ export default function DSAPage() {
             });
             setProgressMap(pMap);
           }
+
+          // Fetch user bookmarks
+          const { data: userBookmarks } = await supabase
+            .from("bookmarks")
+            .select("target_id")
+            .eq("user_id", user.id)
+            .eq("target_type", "dsa");
+
+          if (userBookmarks) {
+            setBookmarkedIds(new Set(userBookmarks.map(b => b.target_id)));
+          }
         }
 
         // Fetch problems
@@ -104,6 +121,15 @@ export default function DSAPage() {
           // If database contains no problems, we will offer seeding
           setProblems([]);
         }
+
+        // Fetch DSA reference links (category = 'dsa_link')
+        const { data: linksData } = await supabase
+          .from("resources")
+          .select("*, users(name)")
+          .eq("category", "dsa_link");
+        if (linksData) {
+          setDsaLinks(linksData);
+        }
       } catch (err) {
         console.error("Failed to load DSA problems:", err);
       } finally {
@@ -112,6 +138,47 @@ export default function DSAPage() {
     };
     fetchData();
   }, [supabase]);
+
+  // Toggle bookmark in Supabase
+  const handleBookmarkToggle = async (problemId: string) => {
+    if (!userId) return;
+    const isBookmarked = bookmarkedIds.has(problemId);
+
+    try {
+      if (isBookmarked) {
+        const { error } = await supabase
+          .from("bookmarks")
+          .delete()
+          .eq("user_id", userId)
+          .eq("target_id", problemId)
+          .eq("target_type", "dsa");
+
+        if (error) throw error;
+        setBookmarkedIds(prev => {
+          const next = new Set(prev);
+          next.delete(problemId);
+          return next;
+        });
+      } else {
+        const { error } = await supabase
+          .from("bookmarks")
+          .insert({
+            user_id: userId,
+            target_id: problemId,
+            target_type: "dsa"
+          });
+
+        if (error) throw error;
+        setBookmarkedIds(prev => {
+          const next = new Set(prev);
+          next.add(problemId);
+          return next;
+        });
+      }
+    } catch (err) {
+      console.error("Failed to toggle bookmark:", err);
+    }
+  };
 
   // Seeding trigger
   const handleSeedProblems = async () => {
@@ -421,7 +488,39 @@ export default function DSAPage() {
 
                   {/* Problems Table */}
                   {isExpanded && (
-                    <div className="overflow-x-auto">
+                    <div className="flex flex-col">
+                      {/* Topic reference links */}
+                      {(() => {
+                        const topicLinks = dsaLinks.filter(link => 
+                          link.tags?.some((t: string) => t.toLowerCase() === topic.toLowerCase()) ||
+                          link.title.toLowerCase().includes(topic.toLowerCase())
+                        );
+                        if (topicLinks.length === 0) return null;
+                        return (
+                          <div className="p-4 bg-zinc-50/20 border-b border-zinc-100 dark:border-zinc-850/60 space-y-2">
+                            <h4 className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">
+                              Study Material & Reference Links
+                            </h4>
+                            <div className="flex flex-wrap gap-2">
+                              {topicLinks.map((link) => (
+                                <button
+                                  key={link.id}
+                                  onClick={() => {
+                                    setActiveEmbedUrl(link.external_url);
+                                    setActiveEmbedTitle(link.title);
+                                  }}
+                                  className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 hover:border-primary text-xs font-semibold hover:text-primary transition-all rounded-xl cursor-pointer"
+                                >
+                                  <BookOpen className="h-3.5 w-3.5 text-primary" />
+                                  <span>{link.title}</span>
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        );
+                      })()}
+
+                      <div className="overflow-x-auto">
                       <table className="w-full text-xs text-left border-collapse">
                         <thead>
                           <tr className="border-b border-zinc-100 dark:border-zinc-800 text-[10px] uppercase font-bold text-zinc-400 bg-zinc-50/10">
@@ -496,6 +595,14 @@ export default function DSAPage() {
                                 <td className="font-extrabold text-zinc-900 dark:text-zinc-150">
                                   <div className="flex items-center gap-1.5 flex-wrap">
                                     <span>{p.title}</span>
+                                    <button
+                                      onClick={() => handleBookmarkToggle(p.id)}
+                                      className={`p-0.5 hover:text-primary transition-colors cursor-pointer ${
+                                        bookmarkedIds.has(p.id) ? "text-primary" : "text-zinc-350 hover:text-zinc-500"
+                                      }`}
+                                    >
+                                      <Bookmark className={`h-3.5 w-3.5 ${bookmarkedIds.has(p.id) ? "fill-primary" : ""}`} />
+                                    </button>
                                     {p.is_weekly && (
                                       <span className="bg-primary-50 text-primary primary-950/20 text-[9px] font-extrabold px-1.5 py-0.5 rounded flex items-center gap-0.5 animate-pulse">
                                         <Flame className="h-3 w-3 fill-primary-400" />
@@ -546,10 +653,58 @@ export default function DSAPage() {
                         </tbody>
                       </table>
                     </div>
-                  )}
-                </div>
+                  </div>
+                )}
+              </div>
               );
             })}
+        </div>
+      )}
+
+      {/* Embedded Reference Links Iframe Modal */}
+      {activeEmbedUrl && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-950/60 backdrop-blur-md animate-in fade-in duration-200">
+          <div className="w-full max-w-5xl h-[85vh] flex flex-col rounded-2xl bg-white dark:bg-zinc-900 shadow-2xl border border-zinc-150/80 dark:border-zinc-800/80 overflow-hidden animate-in zoom-in-95 slide-in-from-bottom-4 duration-200">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between px-5 py-4 border-b border-zinc-100 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/50">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <BookOpen className="h-5 w-5 text-primary shrink-0" />
+                <h3 className="text-sm font-extrabold text-zinc-900 dark:text-white truncate">
+                  {activeEmbedTitle}
+                </h3>
+              </div>
+              <div className="flex items-center gap-2 shrink-0">
+                <a
+                  href={activeEmbedUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-350 text-xs font-bold transition-all rounded-lg cursor-pointer"
+                >
+                  <ExternalLink className="h-3.5 w-3.5" />
+                  <span className="hidden sm:inline">Open in New Tab</span>
+                </a>
+                <button
+                  onClick={() => {
+                    setActiveEmbedUrl(null);
+                    setActiveEmbedTitle("");
+                  }}
+                  className="rounded-full p-1.5 text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-800 hover:text-zinc-700 dark:hover:text-zinc-200 transition-colors cursor-pointer"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+            </div>
+            
+            {/* Iframe View */}
+            <div className="flex-1 bg-zinc-50 dark:bg-zinc-950 relative">
+              <iframe
+                src={activeEmbedUrl}
+                title={activeEmbedTitle}
+                className="w-full h-full border-0"
+                sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
+              />
+            </div>
+          </div>
         </div>
       )}
     </div>

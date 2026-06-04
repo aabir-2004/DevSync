@@ -43,6 +43,12 @@ export default function HomeDashboard() {
   const [announcement, setAnnouncement] = useState<Announcement | null>(null);
   const [featuredItems, setFeaturedItems] = useState<FeaturedItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [counts, setCounts] = useState({
+    resources: 0,
+    blogs: 0,
+    threads: 0,
+    dsa: 0,
+  });
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -50,28 +56,61 @@ export default function HomeDashboard() {
       try {
         // Fetch session user
         const { data: { user } } = await supabase.auth.getUser();
+        let ignoreDate: string | null = null;
         if (user) {
           const { data: profile } = await supabase
             .from("users")
-            .select("name")
+            .select("name, alert_ignore_date")
             .eq("id", user.id)
             .single();
           if (profile?.name) {
             setUserName(profile.name.split(" ")[0]);
           }
+          if (profile?.alert_ignore_date) {
+            ignoreDate = profile.alert_ignore_date;
+          }
         }
+
+        // Check local storage fallback
+        const localDate = localStorage.getItem("devsync:alert_ignore_date");
+        if (localDate) {
+          ignoreDate = localDate;
+        }
+
+        // Fetch counts for categories
+        const [resCount, blogCount, threadCount, dsaCount] = await Promise.all([
+          supabase.from("resources").select("*", { count: "exact", head: true }),
+          supabase.from("blog_posts").select("*", { count: "exact", head: true }).eq("status", "published"),
+          supabase.from("forum_threads").select("*", { count: "exact", head: true }),
+          supabase.from("dsa_problems").select("*", { count: "exact", head: true })
+        ]);
+
+        setCounts({
+          resources: resCount.count || 0,
+          blogs: blogCount.count || 0,
+          threads: threadCount.count || 0,
+          dsa: dsaCount.count || 0
+        });
 
         // Fetch latest active announcement
         const now = new Date().toISOString();
-        const { data: annData } = await supabase
+        let annQuery = supabase
           .from("announcements")
           .select("*")
-          .or(`expires_at.gt.${now},expires_at.is.null`)
+          .or(`expires_at.gt.${now},expires_at.is.null`);
+
+        if (ignoreDate) {
+          annQuery = annQuery.gt("created_at", ignoreDate);
+        }
+
+        const { data: annData } = await annQuery
           .order("created_at", { ascending: false })
           .limit(1);
         
         if (annData && annData.length > 0) {
           setAnnouncement(annData[0]);
+        } else {
+          setAnnouncement(null);
         }
 
         // Fetch top upvoted resources
@@ -137,7 +176,7 @@ export default function HomeDashboard() {
       desc: "Notes, PDFs, roadmaps, interview prep and more.",
       href: "/resources",
       icon: BookOpen,
-      stat: "1.2K+ items",
+      stat: `${counts.resources} item${counts.resources === 1 ? "" : "s"}`,
       statColor: "text-orange-600",
     },
     {
@@ -145,7 +184,7 @@ export default function HomeDashboard() {
       desc: "Write technical articles, share projects and experiences.",
       href: "/blogs",
       icon: FileText,
-      stat: "512+ posts",
+      stat: `${counts.blogs} post${counts.blogs === 1 ? "" : "s"}`,
       statColor: "text-orange-600",
     },
     {
@@ -153,7 +192,7 @@ export default function HomeDashboard() {
       desc: "Ask questions, debate ideas, and help each other learn.",
       href: "/forums",
       icon: MessageSquare,
-      stat: "1.8K+ threads",
+      stat: `${counts.threads} thread${counts.threads === 1 ? "" : "s"}`,
       statColor: "text-orange-600",
     },
     {
@@ -161,7 +200,7 @@ export default function HomeDashboard() {
       desc: "Curated problem lists, roadmaps and solutions.",
       href: "/dsa",
       icon: Trophy,
-      stat: "850+ problems",
+      stat: `${counts.dsa} problem${counts.dsa === 1 ? "" : "s"}`,
       statColor: "text-orange-600",
     }
   ];
