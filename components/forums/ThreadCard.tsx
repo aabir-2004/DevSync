@@ -17,6 +17,13 @@ export interface ForumThread {
   views: number;
   created_at: string;
   comment_count?: number;
+  blog_id?: string | null;
+  blog_posts?: {
+    id: string;
+    title: string;
+    slug: string;
+    excerpt: string | null;
+  } | null;
   users?: {
     name: string;
     avatar_url: string | null;
@@ -90,6 +97,25 @@ export default function ThreadCard({ thread }: ThreadCardProps) {
           <p className="text-xs text-zinc-500 dark:text-zinc-400 line-clamp-2 leading-relaxed">
             {thread.body}
           </p>
+        )}
+
+        {thread.blog_posts && (
+          <div className="premium-card rounded-2xl p-3 border border-primary-100 bg-primary-50/15 dark:border-primary-950/20 dark:bg-primary-950/5 text-xs space-y-1 mt-2">
+            <span className="text-[8px] font-bold text-primary uppercase tracking-wider block">
+              Linked Blog Post
+            </span>
+            <Link 
+              href={`/blogs/${thread.blog_posts.slug}`}
+              className="font-bold text-zinc-800 dark:text-zinc-200 hover:text-primary transition-colors hover:underline block"
+            >
+              {thread.blog_posts.title}
+            </Link>
+            {thread.blog_posts.excerpt && (
+              <p className="text-zinc-500 dark:text-zinc-400 text-[10px] line-clamp-1 leading-normal">
+                {thread.blog_posts.excerpt}
+              </p>
+            )}
+          </div>
         )}
       </div>
 

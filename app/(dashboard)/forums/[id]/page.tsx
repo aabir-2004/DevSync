@@ -46,7 +46,7 @@ export default function ThreadDetailPage({ params }: ThreadDetailPageProps) {
         // Fetch Thread details
         const { data: threadData, error: threadError } = await supabase
           .from("forum_threads")
-          .select("*, users(name, avatar_url, batch)")
+          .select("*, users(name, avatar_url, batch), blog_posts(id, title, slug, excerpt)")
           .eq("id", id)
           .single();
 
@@ -203,6 +203,25 @@ export default function ThreadDetailPage({ params }: ThreadDetailPageProps) {
             <p className="text-xs md:text-sm text-zinc-700 dark:text-zinc-300 leading-relaxed pt-2 whitespace-pre-line">
               {thread.body}
             </p>
+          )}
+
+          {thread.blog_posts && (
+            <div className="premium-card rounded-2xl p-4 border border-primary-100 bg-primary-50/15 dark:border-primary-950/20 dark:bg-primary-950/5 text-xs space-y-1.5 mt-4">
+              <span className="text-[9px] font-bold text-primary uppercase tracking-wider block">
+                Linked Blog Post Under Discussion
+              </span>
+              <Link 
+                href={`/blogs/${thread.blog_posts.slug}`}
+                className="font-bold text-zinc-900 dark:text-white hover:text-primary dark:hover:text-primary transition-colors hover:underline text-sm block"
+              >
+                {thread.blog_posts.title}
+              </Link>
+              {thread.blog_posts.excerpt && (
+                <p className="text-zinc-550 dark:text-zinc-400 text-[11px] leading-relaxed">
+                  {thread.blog_posts.excerpt}
+                </p>
+              )}
+            </div>
           )}
 
         </div>

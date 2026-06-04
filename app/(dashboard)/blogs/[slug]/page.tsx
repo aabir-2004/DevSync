@@ -5,6 +5,7 @@ import { ArrowLeft, Calendar, Eye, Sparkles } from "lucide-react";
 import Avatar from "@/components/shared/Avatar";
 import Tag from "@/components/shared/Tag";
 import VoteButton from "@/components/shared/VoteButton";
+import BlogComments from "@/components/blogs/BlogComments";
 
 interface BlogReaderPageProps {
   params: Promise<{ slug: string }>;
@@ -102,7 +103,15 @@ export default async function BlogReaderPage({ params }: BlogReaderPageProps) {
                 <Calendar className="h-4 w-4" />
                 {formatDate(post.created_at)}
               </span>
-              <VoteButton initialScore={post.upvotes} />
+              <div className="flex items-center gap-2">
+                <Link
+                  href={`/forums/new?blog_id=${post.id}`}
+                  className="pixel-btn text-[8px] bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 hover:text-primary transition-all flex items-center gap-1 py-1.5 px-3 uppercase tracking-wider"
+                >
+                  PULL TO DISCUSS
+                </Link>
+                <VoteButton initialScore={post.upvotes} />
+              </div>
             </div>
           </div>
 
@@ -116,6 +125,9 @@ export default async function BlogReaderPage({ params }: BlogReaderPageProps) {
           dangerouslySetInnerHTML={{ __html: post.content }}
         />
       </div>
+
+      {/* Blog Comments Section */}
+      <BlogComments blogId={post.id} />
 
     </article>
   );

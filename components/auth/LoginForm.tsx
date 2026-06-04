@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { loginSchema, LoginInput } from "@/lib/validations/auth";
-import { Eye, EyeOff, Loader2, KeyRound, Mail, Lock } from "lucide-react";
+import { Eye, EyeOff, Loader2, KeyRound, Mail, Lock, User } from "lucide-react";
 import { z } from "zod";
 
 export default function LoginForm() {
@@ -17,6 +17,9 @@ export default function LoginForm() {
     email: "",
     password: "",
   });
+
+  const [isAdminMode, setIsAdminMode] = useState(false);
+  const [adminId, setAdminId] = useState("");
 
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -39,28 +42,48 @@ export default function LoginForm() {
     setFormErrors({});
     setSubmitError(null);
 
-    // Validate with Zod
-    try {
-      loginSchema.parse(formData);
-    } catch (err) {
-      if (err instanceof z.ZodError) {
-        const errors: Partial<Record<keyof LoginInput, string>> = {};
-        err.issues.forEach((zodErr) => {
-          const path = zodErr.path[0] as keyof LoginInput;
-          if (path && !errors[path]) {
-            errors[path] = zodErr.message;
-          }
-        });
-        setFormErrors(errors);
+    let finalEmail = formData.email;
+
+    if (isAdminMode) {
+      const trimmedId = adminId.trim();
+      const trimmedPwd = formData.password.trim();
+
+      if (!trimmedId) {
+        setFormErrors({ email: "Admin ID is required" });
+        setIsLoading(false);
+        return;
       }
-      setIsLoading(false);
-      return;
+      if (!trimmedPwd) {
+        setFormErrors({ password: "Password is required" });
+        setIsLoading(false);
+        return;
+      }
+
+      finalEmail = `${trimmedId.toLowerCase()}@devsync-admin.local`;
+    } else {
+      // Validate with Zod for student email log in
+      try {
+        loginSchema.parse(formData);
+      } catch (err) {
+        if (err instanceof z.ZodError) {
+          const errors: Partial<Record<keyof LoginInput, string>> = {};
+          err.issues.forEach((zodErr) => {
+            const path = zodErr.path[0] as keyof LoginInput;
+            if (path && !errors[path]) {
+              errors[path] = zodErr.message;
+            }
+          });
+          setFormErrors(errors);
+        }
+        setIsLoading(false);
+        return;
+      }
     }
 
     // Call Supabase login
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
-        email: formData.email,
+        email: finalEmail,
         password: formData.password,
       });
 
@@ -75,7 +98,7 @@ export default function LoginForm() {
         router.refresh(); // Refresh layout to check auth cookies
       }
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : "Invalid email or password.";
+      const message = err instanceof Error ? err.message : "Invalid email/ID or password.";
       setSubmitError(message);
     } finally {
       setIsLoading(false);
@@ -94,32 +117,86 @@ export default function LoginForm() {
         </p>
       </div>
 
+      {/* Login Mode Toggle Tabs */}
+      <div className="flex bg-zinc-100 dark:bg-zinc-800 p-1 rounded-2xl border border-zinc-200 dark:border-zinc-700 text-xs font-bold text-zinc-650">
+        <button
+          type="button"
+          onClick={() => {
+            setIsAdminMode(false);
+            setSubmitError(null);
+            setFormErrors({});
+          }}
+          className={`flex-1 py-2 rounded-xl transition-all cursor-pointer ${
+            !isAdminMode
+              ? "bg-white dark:bg-zinc-900 text-primary shadow-sm"
+              : "hover:text-zinc-900 dark:hover:text-white text-zinc-500"
+          }`}
+        >
+          Cohort Login
+        </button>
+        <button
+          type="button"
+          onClick={() => {
+            setIsAdminMode(true);
+            setSubmitError(null);
+            setFormErrors({});
+          }}
+          className={`flex-1 py-2 rounded-xl transition-all cursor-pointer ${
+            isAdminMode
+              ? "bg-white dark:bg-zinc-900 text-primary shadow-sm"
+              : "hover:text-zinc-900 dark:hover:text-white text-zinc-500"
+          }`}
+        >
+          Admin Portal Login
+        </button>
+      </div>
+
       {submitError && (
-        <div className="rounded-xl bg-red-50 p-3.5 text-xs font-semibold text-red-700 dark:text-red-400 border border-red-100 dark:border-red-900/30">
+        <div className="rounded-xl bg-red-50 p-3.5 text-xs font-semibold text-red-700 dark:text-red-400 border border-red-100 dark:border-red-900/30 animate-in fade-in">
           {submitError}
         </div>
       )}
 
-      {/* Email Address */}
+      {/* Email Address / Admin ID */}
       <div className="space-y-1.5">
         <label className="text-xs font-bold text-zinc-700 dark:text-zinc-300">
-          Email Address
+          {isAdminMode ? "Admin ID" : "Email Address"}
         </label>
         <div className="relative">
           <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5">
-            <Mail className="h-4.5 w-4.5 text-zinc-400" />
+            {isAdminMode ? (
+              <User className="h-4.5 w-4.5 text-zinc-400" />
+            ) : (
+              <Mail className="h-4.5 w-4.5 text-zinc-400" />
+            )}
           </div>
-          <input
-            type="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            placeholder="name@decsync.com"
-            disabled={isLoading}
-            className="w-full rounded-2xl border border-zinc-200 bg-zinc-50/50 py-2.5 pl-10 pr-4 text-xs text-zinc-900 placeholder-zinc-400 focus:border-primary focus:bg-white focus:outline-none dark:border-zinc-800 dark:text-zinc-100 dark:placeholder-zinc-500 transition-all"
-          />
+          {isAdminMode ? (
+            <input
+              type="text"
+              name="adminId"
+              value={adminId}
+              onChange={(e) => {
+                setAdminId(e.target.value);
+                setFormErrors({});
+                setSubmitError(null);
+              }}
+              placeholder="e.g. AABIR"
+              disabled={isLoading}
+              className="w-full rounded-2xl border border-zinc-200 bg-zinc-50/50 py-2.5 pl-10 pr-4 text-xs text-zinc-900 placeholder-zinc-400 focus:border-primary focus:bg-white focus:outline-none dark:border-zinc-800 dark:text-zinc-100 dark:placeholder-zinc-500 transition-all font-semibold"
+            />
+          ) : (
+            <input
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              placeholder="name@decsync.com"
+              disabled={isLoading}
+              className="w-full rounded-2xl border border-zinc-200 bg-zinc-50/50 py-2.5 pl-10 pr-4 text-xs text-zinc-900 placeholder-zinc-400 focus:border-primary focus:bg-white focus:outline-none dark:border-zinc-800 dark:text-zinc-100 dark:placeholder-zinc-500 transition-all"
+            />
+          )}
         </div>
-        {formErrors.email && (
+        {(isAdminMode ? formErrors.email : formErrors.email) && (
           <p className="text-[10px] font-semibold text-red-500">{formErrors.email}</p>
         )}
       </div>
@@ -130,12 +207,14 @@ export default function LoginForm() {
           <label className="text-xs font-bold text-zinc-700 dark:text-zinc-300">
             Password
           </label>
-          <Link
-            href="/auth/forgot"
-            className="text-[11px] font-semibold text-primary hover:underline"
-          >
-            Forgot?
-          </Link>
+          {!isAdminMode && (
+            <Link
+              href="/auth/forgot"
+              className="text-[11px] font-semibold text-primary hover:underline"
+            >
+              Forgot?
+            </Link>
+          )}
         </div>
         <div className="relative">
           <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5">
@@ -180,12 +259,14 @@ export default function LoginForm() {
       </button>
 
       {/* Redirect back to Register */}
-      <p className="text-center text-xs text-zinc-500 dark:text-zinc-400 pt-2">
-        Don&apos;t have an account yet?{" "}
-        <Link href="/auth/signup" className="font-bold text-primary hover:underline">
-          Sign up
-        </Link>
-      </p>
+      {!isAdminMode && (
+        <p className="text-center text-xs text-zinc-500 dark:text-zinc-400 pt-2">
+          Don&apos;t have an account yet?{" "}
+          <Link href="/auth/signup" className="font-bold text-primary hover:underline">
+            Sign up
+          </Link>
+        </p>
+      )}
     </form>
   );
 }

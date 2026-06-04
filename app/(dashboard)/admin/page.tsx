@@ -45,8 +45,14 @@ export default function AdminDashboard() {
   const supabase = createClient();
 
   const [currentUser, setCurrentUser] = useState<AdminUser | null>(null);
-  const [activeTab, setActiveTab] = useState<"reports" | "users" | "announcements">("reports");
+  const [activeTab, setActiveTab] = useState<"reports" | "users" | "announcements" | "admin_mgmt">("reports");
   const [isLoading, setIsLoading] = useState(true);
+
+  // Admin creation states
+  const [newAdminForm, setNewAdminForm] = useState({ adminId: "", password: "" });
+  const [isAdminCreating, setIsAdminCreating] = useState(false);
+  const [adminFormError, setAdminFormError] = useState<string | null>(null);
+  const [adminFormSuccess, setAdminFormSuccess] = useState<string | null>(null);
 
   // States
   const [reports, setReports] = useState<ReportItem[]>([]);
@@ -200,6 +206,43 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleAdminCreationSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setAdminFormError(null);
+    setAdminFormSuccess(null);
+
+    const adminIdTrimmed = newAdminForm.adminId.trim();
+    const passwordTrimmed = newAdminForm.password.trim();
+
+    if (!adminIdTrimmed || !passwordTrimmed) {
+      setAdminFormError("Admin ID and Password are required");
+      return;
+    }
+
+    setIsAdminCreating(true);
+    try {
+      const { data, error } = await supabase.rpc("create_admin_account", {
+        new_admin_id: adminIdTrimmed,
+        new_password: passwordTrimmed
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      setAdminFormSuccess(`Admin account "${adminIdTrimmed.toUpperCase()}" created successfully!`);
+      setNewAdminForm({ adminId: "", password: "" });
+      
+      // Refresh the users list so the new admin appears there
+      fetchDashboardData();
+    } catch (err: any) {
+      console.error("Error creating admin account:", err);
+      setAdminFormError(err.message || "Failed to create admin account.");
+    } finally {
+      setIsAdminCreating(false);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex h-[300px] w-full items-center justify-center">
@@ -261,6 +304,19 @@ export default function AdminDashboard() {
           <Megaphone className="h-4 w-4" />
           <span>Write Announcement</span>
         </button>
+        {currentUser?.role === "admin" && (
+          <button
+            onClick={() => setActiveTab("admin_mgmt")}
+            className={`px-3.5 py-1.5 rounded-xl border transition-all cursor-pointer flex items-center gap-1.5 ${
+              activeTab === "admin_mgmt"
+                ? "bg-primary text-white border-primary"
+                : "border-zinc-200 text-zinc-600 hover:bg-zinc-50 dark:border-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-850"
+            }`}
+          >
+            <Shield className="h-4 w-4" />
+            <span>Admin Management</span>
+          </button>
+        )}
       </div>
 
       {/* Tab Contents: Report Queue */}
@@ -509,6 +565,84 @@ export default function AdminDashboard() {
                 <>
                   <Plus className="h-4 w-4" />
                   <span>Publish Alert</span>
+                </>
+              )}
+            </button>
+          </form>
+        </div>
+      )}
+
+      {/* Tab Contents: Admin Management */}
+      {activeTab === "admin_mgmt" && currentUser?.role === "admin" && (
+        <div className="premium-card rounded-3xl p-8 bg-white dark:bg-zinc-900 border border-zinc-150/80 dark:border-zinc-800/80 max-w-lg animate-in fade-in duration-150">
+          <form onSubmit={handleAdminCreationSubmit} className="space-y-5">
+            <div className="text-center sm:text-left mb-6">
+              <h2 className="text-sm font-bold text-zinc-900 dark:text-white flex items-center justify-center sm:justify-start gap-2">
+                <Shield className="h-5 w-5 text-primary" />
+                Create New Admin Account
+              </h2>
+              <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
+                Register a new admin with an ID and Password. No email registration required.
+              </p>
+            </div>
+
+            {adminFormError && (
+              <div className="rounded-xl bg-red-50 p-3.5 text-xs font-semibold text-red-700 dark:bg-red-950/20 dark:text-red-400 border border-red-100 dark:border-red-900/30">
+                {adminFormError}
+              </div>
+            )}
+
+            {adminFormSuccess && (
+              <div className="rounded-xl bg-green-50 p-3.5 text-xs font-semibold text-green-700 dark:bg-green-950/20 dark:text-green-400 border border-green-100 dark:border-green-900/10">
+                {adminFormSuccess}
+              </div>
+            )}
+
+            {/* Admin ID */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-zinc-700 dark:text-zinc-300">
+                Admin ID
+              </label>
+              <input
+                type="text"
+                value={newAdminForm.adminId}
+                onChange={(e) => setNewAdminForm(prev => ({ ...prev, adminId: e.target.value }))}
+                placeholder="e.g. ADMIN2"
+                disabled={isAdminCreating}
+                className="w-full rounded-2xl border border-zinc-200 bg-zinc-50/50 py-2.5 px-4 text-xs text-zinc-900 focus:border-primary focus:bg-white focus:outline-none dark:border-zinc-800 dark:bg-zinc-900 dark:text-white transition-all font-semibold"
+              />
+            </div>
+
+            {/* Password */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-zinc-700 dark:text-zinc-300">
+                Password
+              </label>
+              <input
+                type="password"
+                value={newAdminForm.password}
+                onChange={(e) => setNewAdminForm(prev => ({ ...prev, password: e.target.value }))}
+                placeholder="••••••••"
+                disabled={isAdminCreating}
+                className="w-full rounded-2xl border border-zinc-200 bg-zinc-50/50 py-2.5 px-4 text-xs text-zinc-900 focus:border-primary focus:bg-white focus:outline-none dark:border-zinc-800 dark:bg-zinc-900 dark:text-white transition-all"
+              />
+            </div>
+
+            {/* Submit Button */}
+            <button
+              type="submit"
+              disabled={isAdminCreating}
+              className="w-full flex items-center justify-center gap-2 rounded-2xl bg-primary hover:bg-primary-900 py-3 text-xs font-bold text-white shadow-md hover:shadow-lg transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+            >
+              {isAdminCreating ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <span>Creating Account...</span>
+                </>
+              ) : (
+                <>
+                  <Plus className="h-4 w-4" />
+                  <span>Create Admin</span>
                 </>
               )}
             </button>

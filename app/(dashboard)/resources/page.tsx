@@ -15,12 +15,30 @@ export default function ResourcesPage() {
   const [resources, setResources] = useState<Resource[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [isAdmin, setIsAdmin] = useState(false);
 
   const [filters, setFilters] = useState({
     category: "all",
     semester: "all",
     sortBy: "created_at" as "upvotes" | "created_at",
   });
+
+  useEffect(() => {
+    const checkRole = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: profile } = await supabase
+          .from("users")
+          .select("role")
+          .eq("id", user.id)
+          .single();
+        if (profile?.role === "admin") {
+          setIsAdmin(true);
+        }
+      }
+    };
+    checkRole();
+  }, [supabase]);
 
   useEffect(() => {
     const fetchResources = async () => {
@@ -79,13 +97,15 @@ export default function ResourcesPage() {
           </div>
         </div>
 
-        <Link
-          href="/resources/upload"
-          className="pixel-btn pixel-btn-primary text-[8px]"
-        >
-          <Plus className="h-3.5 w-3.5" />
-          <span>Upload Note</span>
-        </Link>
+        {isAdmin && (
+          <Link
+            href="/resources/upload"
+            className="pixel-btn pixel-btn-primary text-[8px]"
+          >
+            <Plus className="h-3.5 w-3.5" />
+            <span>Upload Note</span>
+          </Link>
+        )}
       </div>
 
       {/* Main Grid Content */}

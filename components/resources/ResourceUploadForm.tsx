@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Loader2, Plus, Sparkles, BookOpen, GraduationCap, Link2, Tag as TagIcon } from "lucide-react";
@@ -8,6 +8,8 @@ import { Loader2, Plus, Sparkles, BookOpen, GraduationCap, Link2, Tag as TagIcon
 export default function ResourceUploadForm() {
   const router = useRouter();
   const supabase = createClient();
+
+  const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
 
   const [formData, setFormData] = useState({
     title: "",
@@ -24,6 +26,34 @@ export default function ResourceUploadForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitError, setSubmitError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const checkAdmin = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+          router.push("/auth/login");
+          return;
+        }
+
+        const { data: profile } = await supabase
+          .from("users")
+          .select("role")
+          .eq("id", user.id)
+          .single();
+
+        if (!profile || profile.role !== "admin") {
+          router.push("/");
+        } else {
+          setIsAdmin(true);
+        }
+      } catch (err) {
+        console.error("Auth check failed:", err);
+        router.push("/");
+      }
+    };
+    checkAdmin();
+  }, [router, supabase]);
 
   const categories = [
     { value: "pdf", label: "PDF" },
@@ -109,6 +139,14 @@ export default function ResourceUploadForm() {
       setIsLoading(false);
     }
   };
+
+  if (isAdmin === null) {
+    return (
+      <div className="flex h-40 w-full items-center justify-center">
+        <Loader2 className="h-7 w-7 text-primary animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">

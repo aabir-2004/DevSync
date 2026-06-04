@@ -36,7 +36,7 @@ export default function ForumsPage() {
       try {
         let query = supabase
           .from("forum_threads")
-          .select("*, users(name, avatar_url, batch)");
+          .select("*, users(name, avatar_url, batch), blog_posts(id, title, slug, excerpt)");
 
         if (activeCategory !== "all") {
           query = query.eq("category", activeCategory);

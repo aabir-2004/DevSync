@@ -67,7 +67,7 @@ export default function Navbar() {
   }, [supabase]);
 
   // User Profile state
-  const [profile, setProfile] = useState<{ name: string; avatar_url: string | null } | null>(null);
+  const [profile, setProfile] = useState<{ name: string; avatar_url: string | null; role: string } | null>(null);
 
   // Fetch Auth User & Notifications
   useEffect(() => {
@@ -77,10 +77,10 @@ export default function Navbar() {
         setUserId(user.id);
         fetchNotifications(user.id);
 
-        // Fetch user profile name and avatar
+        // Fetch user profile name, avatar and role
         const { data: userData } = await supabase
           .from("users")
-          .select("name, avatar_url")
+          .select("name, avatar_url, role")
           .eq("id", user.id)
           .single();
         if (userData) {
@@ -322,14 +322,16 @@ export default function Navbar() {
                 </Link>
               );
             })}
-            <Link
-              href="/resources/upload"
-              onClick={() => setIsMobileMenuOpen(false)}
-              className="flex items-center gap-3 px-3 py-2 text-sm font-semibold bg-primary-50 text-primary transition-all"
-            >
-              <Plus className="h-4 w-4" />
-              <span>Contribute a Resource</span>
-            </Link>
+            {profile?.role === "admin" && (
+              <Link
+                href="/resources/upload"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="flex items-center gap-3 px-3 py-2 text-sm font-semibold bg-primary-50 text-primary transition-all"
+              >
+                <Plus className="h-4 w-4" />
+                <span>Contribute a Resource</span>
+              </Link>
+            )}
           </div>
         </div>
       )}

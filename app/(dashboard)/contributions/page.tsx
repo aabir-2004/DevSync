@@ -18,7 +18,7 @@ import {
 interface ContributionItem {
   id: string;
   title: string;
-  type: "resource" | "blog" | "thread";
+  type: "blog" | "thread";
   created_at: string;
   category?: string | null;
   subject?: string | null;
@@ -32,7 +32,7 @@ export default function ContributionsPage() {
 
   const [userId, setUserId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<"all" | "resources" | "blogs" | "threads">("all");
+  const [activeTab, setActiveTab] = useState<"all" | "blogs" | "threads">("all");
   
   // Data States
   const [contributions, setContributions] = useState<ContributionItem[]>([]);
@@ -52,28 +52,13 @@ export default function ContributionsPage() {
         }
         setUserId(user.id);
 
-        // Fetch Resources, Blogs, and Threads created by user
-        const [resData, blogData, threadData] = await Promise.all([
-          supabase.from("resources").select("id, title, category, subject, external_url, created_at").eq("author_id", user.id),
+        // Fetch Blogs and Threads created by user
+        const [blogData, threadData] = await Promise.all([
           supabase.from("blog_posts").select("id, title, status, slug, created_at").eq("author_id", user.id),
           supabase.from("forum_threads").select("id, title, category, created_at").eq("author_id", user.id)
         ]);
 
         const items: ContributionItem[] = [];
-
-        if (resData.data) {
-          resData.data.forEach(r => {
-            items.push({
-              id: r.id,
-              title: r.title,
-              type: "resource",
-              created_at: r.created_at,
-              category: r.category,
-              subject: r.subject,
-              external_url: r.external_url
-            });
-          });
-        }
 
         if (blogData.data) {
           blogData.data.forEach(b => {
@@ -112,12 +97,11 @@ export default function ContributionsPage() {
   }, [supabase, router]);
 
   // Delete/Remove Contribution Handler
-  const handleDeleteContribution = async (id: string, type: "resource" | "blog" | "thread") => {
+  const handleDeleteContribution = async (id: string, type: "blog" | "thread") => {
     if (!window.confirm(`Are you sure you want to delete this ${type}?`)) return;
     try {
       let table = "";
-      if (type === "resource") table = "resources";
-      else if (type === "blog") table = "blog_posts";
+      if (type === "blog") table = "blog_posts";
       else if (type === "thread") table = "forum_threads";
 
       const { error } = await supabase
@@ -144,9 +128,7 @@ export default function ContributionsPage() {
     );
 
     // Filter by tab
-    if (activeTab === "resources") {
-      filtered = filtered.filter(c => c.type === "resource");
-    } else if (activeTab === "blogs") {
+    if (activeTab === "blogs") {
       filtered = filtered.filter(c => c.type === "blog");
     } else if (activeTab === "threads") {
       filtered = filtered.filter(c => c.type === "thread");
@@ -167,7 +149,6 @@ export default function ContributionsPage() {
   };
 
   const processedList = getFilteredAndSorted();
-  const resourcesCount = contributions.filter(c => c.type === "resource").length;
   const blogsCount = contributions.filter(c => c.type === "blog").length;
   const threadsCount = contributions.filter(c => c.type === "thread").length;
 
@@ -203,16 +184,7 @@ export default function ContributionsPage() {
           >
             All ({contributions.length})
           </button>
-          <button
-            onClick={() => setActiveTab("resources")}
-            className={`px-3.5 py-1.5 transition-all cursor-pointer ${
-              activeTab === "resources"
-                ? "bg-white dark:bg-zinc-900 text-primary shadow-sm border border-zinc-200/50 dark:border-zinc-800"
-                : "hover:text-zinc-900 dark:hover:text-white"
-            }`}
-          >
-            Resources ({resourcesCount})
-          </button>
+
           <button
             onClick={() => setActiveTab("blogs")}
             className={`px-3.5 py-1.5 transition-all cursor-pointer ${
@@ -284,12 +256,12 @@ export default function ContributionsPage() {
             const dateStr = new Date(item.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
             
             // Icon selection
-            const Icon = item.type === "resource" ? BookOpen : item.type === "blog" ? FileText : MessageSquare;
-            const colorClass = item.type === "resource" ? "bg-blue-50 text-blue-600 border-blue-100 dark:bg-blue-950/20 dark:text-blue-400 dark:border-blue-900/10" : item.type === "blog" ? "bg-primary-50 text-primary border-primary-100 dark:bg-primary-950/20 dark:text-primary-300 dark:border-primary-900/10" : "bg-purple-50 text-purple-600 border-purple-100 dark:bg-purple-950/20 dark:text-purple-400 dark:border-purple-900/10";
+            const Icon = item.type === "blog" ? FileText : MessageSquare;
+            const colorClass = item.type === "blog" ? "bg-primary-50 text-primary border-primary-100 dark:bg-primary-950/20 dark:text-primary-300 dark:border-primary-900/10" : "bg-purple-50 text-purple-600 border-purple-100 dark:bg-purple-950/20 dark:text-purple-400 dark:border-purple-900/10";
             
             // Navigation link target
-            const viewHref = item.type === "resource" ? (item.external_url ?? `/resources`) : item.type === "blog" ? `/blogs/${item.slug}` : `/forums/${item.id}`;
-            const isExternal = item.type === "resource";
+            const viewHref = item.type === "blog" ? `/blogs/${item.slug}` : `/forums/${item.id}`;
+            const isExternal = false;
 
             return (
               <div 
