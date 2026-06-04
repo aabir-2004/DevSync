@@ -147,24 +147,13 @@ BEGIN
     now()
   );
 
-  -- Insert into public.users profile
-  INSERT INTO public.users (
-    id,
-    email,
-    name,
-    batch,
-    role,
-    reputation,
-    created_at
-  ) VALUES (
-    new_user_id,
-    mock_email,
-    upper(trim(new_admin_id)),
-    'Admin',
-    'admin',
-    1000,
-    now()
-  );
+  -- Update public.users profile to set role = 'admin' (trigger already created standard student profile)
+  UPDATE public.users
+  SET
+    role = 'admin',
+    batch = 'Admin',
+    reputation = 1000
+  WHERE id = new_user_id;
 
   RETURN TRUE;
 END;
@@ -208,6 +197,7 @@ WHERE NOT EXISTS (
 );
 
 -- Ensure a corresponding entry in public.users exists with role = 'admin'
+-- If the trigger didn't run, insert the profile; otherwise update it to role = 'admin'
 INSERT INTO public.users (
   id,
   email,
@@ -228,6 +218,13 @@ SELECT
 WHERE NOT EXISTS (
   SELECT 1 FROM public.users WHERE id = 'aab1aab1-aab1-aab1-aab1-aab1aab1aab1'::uuid
 );
+
+UPDATE public.users
+SET
+  role = 'admin',
+  batch = 'Admin',
+  reputation = 1000
+WHERE id = 'aab1aab1-aab1-aab1-aab1-aab1aab1aab1'::uuid;
 
 -- ==========================================
 -- 6. FUNCTION TO UPVOTE A BLOG COMMENT
