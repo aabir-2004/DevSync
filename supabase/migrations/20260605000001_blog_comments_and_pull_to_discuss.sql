@@ -31,18 +31,22 @@ CREATE INDEX IF NOT EXISTS blog_comments_blog_idx ON public.blog_comments (blog_
 CREATE INDEX IF NOT EXISTS blog_comments_parent_idx ON public.blog_comments (parent_id);
 
 -- RLS Policies for Blog Comments
+DROP POLICY IF EXISTS "Allow public read blog comments" ON public.blog_comments;
 CREATE POLICY "Allow public read blog comments" 
   ON public.blog_comments FOR SELECT 
   USING (true);
 
+DROP POLICY IF EXISTS "Allow auth insert blog comments" ON public.blog_comments;
 CREATE POLICY "Allow auth insert blog comments" 
   ON public.blog_comments FOR INSERT 
   WITH CHECK (auth.uid() = author_id);
 
+DROP POLICY IF EXISTS "Allow update own blog comments or staff" ON public.blog_comments;
 CREATE POLICY "Allow update own blog comments or staff" 
   ON public.blog_comments FOR UPDATE 
   USING (auth.uid() = author_id OR public.is_staff(auth.uid()));
 
+DROP POLICY IF EXISTS "Allow delete own blog comments or staff" ON public.blog_comments;
 CREATE POLICY "Allow delete own blog comments or staff" 
   ON public.blog_comments FOR DELETE 
   USING (auth.uid() = author_id OR public.is_staff(auth.uid()));
